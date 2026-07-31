@@ -116,17 +116,25 @@
         .btn-enter:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.35); }
         .btn-enter:active { transform: scale(0.96); }
 
-        .gallery-section { display: none; min-height: 100vh; padding: 0 0 40px; animation: fadeInUp 0.5s forwards; background: var(--bg-cream); }
+        /* 相册页面 */
+        .gallery-section {
+            display: none; min-height: 100vh; padding: 0 0 40px;
+            animation: fadeInUp 0.5s forwards;
+            background: var(--bg-cream);
+            padding-top: 80px; /* 给固定导航栏留空间 */
+        }
         .gallery-section.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 固定导航栏 */
         .gallery-nav {
-            position: sticky; top: 12px; z-index: 100;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-            padding: 12px 18px; margin: 12px 12px 0;
-            background: rgba(255,248,240,0.85); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-lg);
+            padding: 12px 18px;
+            background: rgba(255,248,240,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.6);
             box-shadow: var(--shadow-md);
+            border-radius: 0;
         }
         .gallery-nav-title { font-family: 'Georgia', serif; font-size: 1.2rem; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
         .gallery-nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -161,21 +169,11 @@
         .image-card-inner img { width: 100%; height: auto; object-fit: contain; transition: transform 0.5s; display: block; }
         .image-card:hover .image-card-inner img { transform: scale(1.03); }
 
-        /* 悬停时间标签 */
         .image-time-overlay {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            padding: 4px 10px;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            font-size: 0.7rem;
-            border-top-left-radius: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            white-space: nowrap;
+            position: absolute; bottom: 0; right: 0;
+            padding: 4px 10px; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+            color: #fff; font-size: 0.7rem; border-top-left-radius: 8px;
+            opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap;
         }
         .image-card:hover .image-time-overlay { opacity: 1; }
 
@@ -190,18 +188,15 @@
         .badge-preset { background: #FFF3E6; color: #C07840; }
         .badge-submission { background: #FFF0ED; color: #D47860; }
 
-        /* 卡片操作按钮（加大尺寸，方便触摸） */
         .image-card-actions {
             display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f0e8e0;
         }
         .card-action-btn {
             display: inline-flex; align-items: center; justify-content: center;
-            min-width: 36px; min-height: 36px;    /* 增大到 36px */
-            border: none; border-radius: 50%;
+            min-width: 36px; min-height: 36px; border: none; border-radius: 50%;
             cursor: pointer; font-size: 1rem; transition: all 0.2s;
             background: rgba(232,148,90,0.1); color: var(--accent-deep);
-            touch-action: manipulation;           /* 禁止双击缩放 */
-            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
         }
         .card-action-btn:active { transform: scale(0.9); background: rgba(232,148,90,0.25); }
         .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
@@ -213,7 +208,7 @@
         .more-links .more-link { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 28px; border-radius: 50px; font-size: 1rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; gap: 8px; }
         .more-links .more-link:hover { background: rgba(255,255,255,0.2); border-color: #c8a27a; color: #c8a27a; }
 
-        .message-section { display: none; min-height: 100vh; padding: 0 16px 40px; background: var(--bg-cream); animation: fadeInUp 0.5s forwards; }
+        .message-section { display: none; min-height: 100vh; padding: 0 16px 40px; background: var(--bg-cream); animation: fadeInUp 0.5s forwards; padding-top: 80px; }
         .message-section.active { display: block; }
         .message-container { max-width: 700px; margin: 80px auto 40px; background: var(--white); border-radius: 20px; padding: 28px 24px; box-shadow: var(--shadow-md); }
         .message-list { max-height: 50vh; overflow-y: auto; margin-bottom: 24px; }
@@ -274,7 +269,7 @@
         @media (max-width: 767px) {
             .gallery-grid { column-count: 2; column-gap: 8px; padding: 0 4px; }
             .image-card { margin-bottom: 8px; }
-            .gallery-nav { flex-direction: column; align-items: flex-start; padding: 10px 14px; margin: 10px 8px 0; }
+            .gallery-nav { flex-direction: column; align-items: flex-start; padding: 10px 14px; }
             .gallery-nav-actions { width: 100%; justify-content: space-between; }
             .stats-bar { margin: 8px 8px 14px; gap: 16px; font-size: 0.9rem; padding: 14px 18px; }
             .hero-stats { flex-direction: column; gap: 8px; padding: 10px 20px; }
@@ -590,7 +585,6 @@
         }
     });
 
-    // 渲染相册：移动端删除强化
     function renderGallery() {
         const all = getAllImages();
         if (!all.length) {
@@ -625,7 +619,6 @@
             </div>`;
         }).join('');
 
-        // 下载按钮
         document.querySelectorAll('[data-action="download"]').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.stopPropagation();
@@ -633,10 +626,9 @@
             });
         });
 
-        // 删除按钮：同时绑定 click 和 touchend，阻止冒泡和默认行为
         const deleteHandler = async (e) => {
             e.stopPropagation();
-            e.preventDefault();          // 防止 touchend 后的 click 二次触发
+            e.preventDefault();
             const btn = e.currentTarget;
             const id = btn.dataset.id;
             const numericId = parseInt(id.replace('sub-', ''));
@@ -661,10 +653,9 @@
 
         document.querySelectorAll('[data-action="delete"], [data-action="admin-delete"]').forEach(btn => {
             btn.addEventListener('click', deleteHandler);
-            btn.addEventListener('touchend', deleteHandler, { passive: false }); // 明确非 passive 以允许 preventDefault
+            btn.addEventListener('touchend', deleteHandler, { passive: false });
         });
 
-        // 卡片点击预览
         document.querySelectorAll('.image-card').forEach(card => {
             card.addEventListener('click', e => {
                 if (e.target.closest('button')) return;
@@ -699,7 +690,7 @@
     }
     function closeLightbox() { lightboxOverlay.classList.remove('active'); document.body.style.overflow = ''; currentLightboxImage = null; }
 
-    // 留言板（使用个人主页昵称和密码）
+    // 留言板
     async function loadMessages() {
         const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false });
         if (error) { messageList.innerHTML = '<p style="text-align:center;color:#999;">加载留言失败</p>'; return; }
