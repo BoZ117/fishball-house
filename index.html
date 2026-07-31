@@ -121,7 +121,7 @@
             display: none; min-height: 100vh; padding: 0 0 40px;
             animation: fadeInUp 0.5s forwards;
             background: var(--bg-cream);
-            padding-top: 80px; /* 给固定导航栏留空间 */
+            padding-top: 80px; /* 桌面端为固定导航栏留空 */
         }
         .gallery-section.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -264,6 +264,7 @@
         .profile-stats { text-align: center; margin-bottom: 18px; color: var(--text-secondary); font-size: 0.9rem; }
         .profile-stats strong { color: var(--accent-deep); }
 
+        /* 响应式：平板 3 列，手机 2 列，并增加顶部间距避免重叠 */
         @media (min-width: 1200px) { .gallery-grid { column-count: 5; } }
         @media (max-width: 1199px) and (min-width: 768px) { .gallery-grid { column-count: 3; column-gap: 10px; } }
         @media (max-width: 767px) {
@@ -276,6 +277,14 @@
             .hero-title { font-size: 2rem; }
             .hero-image-frame { width: 55vw; height: 55vw; }
             .more-links { flex-direction: column; gap: 14px; }
+
+            /* 修正移动端固定导航栏重叠问题 */
+            .gallery-section {
+                padding-top: 150px !important;
+            }
+            .message-section {
+                padding-top: 150px !important;
+            }
         }
     </style>
 </head>
