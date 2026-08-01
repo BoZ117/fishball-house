@@ -121,7 +121,7 @@
             display: none; min-height: 100vh; padding: 0 0 40px;
             animation: fadeInUp 0.5s forwards;
             background: var(--bg-cream);
-            padding-top: 80px; /* 桌面端为固定导航栏留空 */
+            padding-top: 80px;
         }
         .gallery-section.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -264,27 +264,33 @@
         .profile-stats { text-align: center; margin-bottom: 18px; color: var(--text-secondary); font-size: 0.9rem; }
         .profile-stats strong { color: var(--accent-deep); }
 
-        /* 响应式：平板 3 列，手机 2 列，并增加顶部间距避免重叠 */
         @media (min-width: 1200px) { .gallery-grid { column-count: 5; } }
         @media (max-width: 1199px) and (min-width: 768px) { .gallery-grid { column-count: 3; column-gap: 10px; } }
         @media (max-width: 767px) {
             .gallery-grid { column-count: 2; column-gap: 8px; padding: 0 4px; }
             .image-card { margin-bottom: 8px; }
             .gallery-nav { flex-direction: column; align-items: flex-start; padding: 10px 14px; }
-            .gallery-nav-actions { width: 100%; justify-content: space-between; }
+            /* 修复移动端按钮一行显示 */
+            .gallery-nav-actions {
+                width: 100%;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
             .stats-bar { margin: 8px 8px 14px; gap: 16px; font-size: 0.9rem; padding: 14px 18px; }
             .hero-stats { flex-direction: column; gap: 8px; padding: 10px 20px; }
             .hero-title { font-size: 2rem; }
             .hero-image-frame { width: 55vw; height: 55vw; }
             .more-links { flex-direction: column; gap: 14px; }
-
-            /* 修正移动端固定导航栏重叠问题 */
-            .gallery-section {
-                padding-top: 150px !important;
-            }
-            .message-section {
-                padding-top: 150px !important;
-            }
+            .gallery-section { padding-top: 150px !important; }
+            .message-section { padding-top: 150px !important; }
         }
     </style>
 </head>
@@ -301,7 +307,7 @@
         <div class="hero-image-wrapper">
             <div class="hero-image-glow"></div>
             <div class="hero-image-frame" id="heroImageFrame">
-                <img src="1.jpg" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
+                <img src="https://picsum.photos/300/300" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
             </div>
         </div>
         <div class="hero-stats" id="heroStats">
