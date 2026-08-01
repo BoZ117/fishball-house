@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
-    <!-- JSZip 国内镜像（字节跳动 CDN） -->
+    <!-- JSZip 国内镜像 -->
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Supabase SDK 国内镜像（unpkg） -->
+    <!-- Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -118,7 +118,6 @@
         .btn-enter:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.35); }
         .btn-enter:active { transform: scale(0.96); }
 
-        /* 相册页面 */
         .gallery-section {
             display: none; min-height: 100vh; padding: 0 0 40px;
             animation: fadeInUp 0.5s forwards;
@@ -128,7 +127,6 @@
         .gallery-section.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 固定导航栏 */
         .gallery-nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
@@ -199,7 +197,7 @@
             cursor: pointer; font-size: 1rem; transition: all 0.2s;
             background: rgba(232,148,90,0.1); color: var(--accent-deep);
             touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-            position: relative; z-index: 5;
+            position: relative; z-index: 10; pointer-events: auto;
         }
         .card-action-btn:active { transform: scale(0.9); background: rgba(232,148,90,0.25); }
         .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
@@ -298,7 +296,7 @@
         <div class="hero-image-wrapper">
             <div class="hero-image-glow"></div>
             <div class="hero-image-frame" id="heroImageFrame">
-                <!-- 👇 请将 src 改为你自己的图片文件名（如 ./hero.jpg） -->
+                <!-- 请确保图片已上传至仓库根目录，并修改 src 为您的文件名 -->
                 <img src="./1.jpg" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
             </div>
         </div>
@@ -592,6 +590,36 @@
         }
     });
 
+    // 定义全局删除和下载函数，供内联 onclick 调用
+    window.deleteImage = async function(id, title, isAdmin) {
+        const numericId = parseInt(id.replace('sub-', ''));
+        if (isAdmin) {
+            if (!confirm(`管理员删除《${title || '无标题'}》？`)) return;
+            const ADMIN_PWD = 'FishBallAdmin2025';
+            const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: ADMIN_PWD });
+            if (error) { showToast('❌ 管理员密码错误或删除失败'); return; }
+            showToast('🗑️ 管理员已删除');
+        } else {
+            const password = prompt(`请输入《${title || '无标题'}》的删除密码：`);
+            if (!password) return;
+            const { error } = await sb.rpc('delete_submission', { submission_id: numericId, pwd: password });
+            if (error) { showToast('❌ 密码错误或投稿不存在'); return; }
+            showToast('🗑️ 已删除');
+        }
+        await loadSubmissions();
+        if (currentLightboxImage && currentLightboxImage.id === id) closeLightbox();
+    };
+
+    window.downloadSingleGlobal = async function(index) {
+        const img = getAllImages()[index];
+        if (!img) return;
+        try {
+            const blob = await fetch(img.src).then(r => r.blob());
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (img.title || 'image') + '.jpg'; a.click();
+            showToast('✅ 已下载');
+        } catch { window.open(img.src, '_blank'); }
+    };
+
     function renderGallery() {
         const all = getAllImages();
         if (!all.length) {
@@ -604,13 +632,15 @@
             let actionButtons = '';
             if (isSub) {
                 if (adminMode) {
-                    actionButtons += `<button class="card-action-btn delete-btn" data-action="admin-delete" data-id="${img.id}" data-title="${img.title.replace(/"/g, '&quot;')}">🔧</button>`;
+                    // 管理员删除按钮，直接使用 onclick 调用全局函数
+                    actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', true)">🔧</button>`;
                 } else {
-                    actionButtons += `<button class="card-action-btn delete-btn" data-action="delete" data-id="${img.id}" data-title="${img.title.replace(/"/g, '&quot;')}">✕</button>`;
+                    actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', false)">✕</button>`;
                 }
             }
-            actionButtons += `<button class="card-action-btn" data-action="download" data-index="${i}">⬇</button>`;
-            return `<div class="image-card" data-index="${i}" data-id="${img.id}">
+            // 下载按钮
+            actionButtons += `<button class="card-action-btn" onclick="downloadSingleGlobal(${i})">⬇</button>`;
+            return `<div class="image-card" data-index="${i}" data-id="${img.id}" onclick="if(!event.target.closest('button')) openLightbox(${i})">
                 <div class="image-card-inner">
                     <img src="${img.src}" alt="${img.title}" loading="lazy" onerror="this.parentElement.parentElement.style.display='none';">
                     <div class="image-time-overlay">${timeStr}</div>
@@ -625,52 +655,6 @@
                 </div>
             </div>`;
         }).join('');
-
-        // 下载按钮
-        document.querySelectorAll('[data-action="download"]').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.stopPropagation();
-                downloadSingle(getAllImages()[parseInt(btn.dataset.index)]);
-            });
-        });
-
-        // 删除按钮（仅使用 click 事件，兼容 QQ 浏览器）
-        const deleteHandler = async (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            const btn = e.currentTarget;
-            const id = btn.dataset.id;
-            const numericId = parseInt(id.replace('sub-', ''));
-            const title = btn.dataset.title;
-            const isAdmin = btn.dataset.action === 'admin-delete';
-            if (isAdmin) {
-                if (!confirm(`管理员删除《${title || '无标题'}》？`)) return;
-                const ADMIN_PWD = 'FishBallAdmin2025';
-                const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: ADMIN_PWD });
-                if (error) { showToast('❌ 管理员密码错误或删除失败'); return; }
-                showToast('🗑️ 管理员已删除');
-            } else {
-                const password = prompt(`请输入《${title || '无标题'}》的删除密码：`);
-                if (!password) return;
-                const { error } = await sb.rpc('delete_submission', { submission_id: numericId, pwd: password });
-                if (error) { showToast('❌ 密码错误或投稿不存在'); return; }
-                showToast('🗑️ 已删除');
-            }
-            await loadSubmissions();
-            if (currentLightboxImage && currentLightboxImage.id === id) closeLightbox();
-        };
-
-        document.querySelectorAll('[data-action="delete"], [data-action="admin-delete"]').forEach(btn => {
-            btn.addEventListener('click', deleteHandler);
-            // 不再添加 touchend 监听
-        });
-
-        document.querySelectorAll('.image-card').forEach(card => {
-            card.addEventListener('click', e => {
-                if (e.target.closest('button')) return;
-                openLightbox(parseInt(card.dataset.index));
-            });
-        });
     }
 
     async function downloadSingle(img) {
@@ -699,7 +683,7 @@
     }
     function closeLightbox() { lightboxOverlay.classList.remove('active'); document.body.style.overflow = ''; currentLightboxImage = null; }
 
-    // 留言板（移除 touchend，只使用 click）
+    // 留言板
     async function loadMessages() {
         const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false });
         if (error) { messageList.innerHTML = '<p style="text-align:center;color:#999;">加载留言失败</p>'; return; }
@@ -710,36 +694,32 @@
                 <div class="msg-text">${m.content}</div>
                 <div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
                 ${adminMode 
-                    ? `<button class="msg-delete msg-admin-delete" data-id="${m.id}">管理员删除</button>`
-                    : `<button class="msg-delete" data-id="${m.id}">✕</button>`
+                    ? `<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>`
+                    : `<button class="msg-delete" onclick="deleteMessage(${m.id})">✕</button>`
                 }
             </div>
         `).join('');
-
-        document.querySelectorAll('.msg-delete').forEach(btn => {
-            const handler = async (e) => {
-                e.stopPropagation();
-                const id = btn.dataset.id;
-                if (adminMode) {
-                    if (!confirm('确定以管理员身份删除这条留言？')) return;
-                    const ADMIN_PWD = 'FishBallAdmin2025';
-                    const { error } = await sb.rpc('admin_delete_message', { message_id: parseInt(id), admin_pwd: ADMIN_PWD });
-                    if (error) { showToast('❌ 管理员删除失败'); return; }
-                    showToast('🗑️ 管理员已删除留言');
-                } else {
-                    const password = prompt('请输入删除密码（与个人主页密码相同）：');
-                    if (!password) return;
-                    const { error } = await sb.rpc('delete_message', { message_id: parseInt(id), pwd: password });
-                    if (error) { showToast('❌ 密码错误或留言不存在'); return; }
-                    showToast('🗑️ 留言已删除');
-                }
-                await loadMessages();
-                await updateStats();
-            };
-            btn.addEventListener('click', handler);
-            // 移除 touchend 监听
-        });
     }
+
+    window.deleteMessage = async function(id) {
+        const password = prompt('请输入删除密码（与个人主页密码相同）：');
+        if (!password) return;
+        const { error } = await sb.rpc('delete_message', { message_id: id, pwd: password });
+        if (error) { showToast('❌ 密码错误或留言不存在'); return; }
+        showToast('🗑️ 留言已删除');
+        await loadMessages();
+        await updateStats();
+    };
+
+    window.deleteMessageAdmin = async function(id) {
+        if (!confirm('确定以管理员身份删除这条留言？')) return;
+        const ADMIN_PWD = 'FishBallAdmin2025';
+        const { error } = await sb.rpc('admin_delete_message', { message_id: id, admin_pwd: ADMIN_PWD });
+        if (error) { showToast('❌ 管理员删除失败'); return; }
+        showToast('🗑️ 管理员已删除留言');
+        await loadMessages();
+        await updateStats();
+    };
 
     messageForm.addEventListener('submit', async e => {
         e.preventDefault();
