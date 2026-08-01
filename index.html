@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
-    <!-- JSZip 国内镜像 -->
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Supabase SDK 国内镜像 -->
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -52,7 +50,6 @@
 
         .app-container { position: relative; z-index: 1; min-height: 100vh; }
 
-        /* 逐字动画 */
         .char { display: inline-block; opacity: 0; transform: translateY(25px); transition: opacity 0.4s ease, transform 0.4s ease; }
         .char.show { opacity: 1; transform: translateY(0); }
 
@@ -205,7 +202,6 @@
         .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
         .card-action-btn.delete-btn:active { background: rgba(192,57,43,0.2); }
 
-        /* 多选模式复选框（纯视觉，无点击事件） */
         .select-checkbox {
             position: absolute;
             top: 8px;
@@ -422,7 +418,7 @@
             <div class="form-group">
                 <label class="form-label">删除密码</label>
                 <input type="text" class="form-input" id="profilePassword" placeholder="设置删除密码" maxlength="20" required>
-                <span style="font-size:0.7rem;color:var(--text-muted);">此密码用于删除你的投稿和留言，请妥善保管</span>
+                <span style="font-size:0.7rem;color:var(--text-muted);">修改昵称或密码时，将自动更新所有历史投稿和留言</span>
             </div>
             <button type="submit" class="form-submit">💾 保存信息</button>
         </form>
@@ -493,7 +489,9 @@
 
     async function updateStats() {
         const totalImages = submissionImages.length + PRESET_IMAGES.length;
-        const uniqueAuthors = new Set(submissionImages.map(img => img.author));
+        const uniqueAuthors = new Set(
+            submissionImages.map(img => `${(img.author || '').trim()}::${(img.delete_password || '').trim()}`)
+        );
         heroTotalImagesEl.textContent = totalImages;
         heroTotalAuthorsEl.textContent = uniqueAuthors.size;
         galleryTotalImagesEl.textContent = totalImages;
@@ -511,7 +509,7 @@
             title: row.title,
             author: row.author,
             submittedAt: row.created_at,
-            delete_password: row.delete_password
+            delete_password: row.delete_password || ''
         }));
         await updateStats();
         renderGallery();
@@ -612,7 +610,6 @@
         }
     });
 
-    // 全局删除函数
     window.deleteImage = async function(id, title, isAdmin) {
         const numericId = parseInt(id.replace('sub-', ''));
         if (isAdmin) {
@@ -642,7 +639,6 @@
         } catch { window.open(img.src, '_blank'); }
     };
 
-    // 多选模式
     function toggleSelectMode() {
         selectMode = !selectMode;
         if (selectMode) {
@@ -837,8 +833,8 @@
     // 个人主页统计（昵称+密码匹配）
     async function updateProfileStats() {
         const profile = getProfile();
-        const author = profile.author;
-        const password = profile.password;
+        const author = (profile.author || '').trim();
+        const password = (profile.password || '').trim();
         if (!author || !password) {
             document.getElementById('profileSubmissions').textContent = 0;
             document.getElementById('profileMessages').textContent = 0;
@@ -862,11 +858,39 @@
         profileModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden';
     }
     function closeProfileModal() { profileModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
-    profileForm.addEventListener('submit', e => {
+
+    // 修改密码时同步更新历史数据
+    profileForm.addEventListener('submit', async e => {
         e.preventDefault();
-        const author = profileAuthor.value.trim(), password = profilePassword.value.trim();
-        if (!author || !password) return showToast('昵称和密码不能为空');
-        saveProfile(author, password); showToast('个人信息已保存'); closeProfileModal();
+        const oldProfile = getProfile();
+        const oldAuthor = oldProfile.author || '';
+        const oldPassword = oldProfile.password || '';
+        const newAuthor = profileAuthor.value.trim();
+        const newPassword = profilePassword.value.trim();
+        if (!newAuthor || !newPassword) return showToast('昵称和密码不能为空');
+        
+        // 如果有旧身份且与新身份不同，则更新数据库中的历史记录
+        if (oldAuthor && oldPassword && (oldAuthor !== newAuthor || oldPassword !== newPassword)) {
+            // 更新投稿表
+            const { error: errSub } = await sb.from('submissions')
+                .update({ author: newAuthor, delete_password: newPassword })
+                .eq('author', oldAuthor)
+                .eq('delete_password', oldPassword);
+            if (errSub) console.error('投稿更新失败:', errSub);
+            
+            // 更新留言表
+            const { error: errMsg } = await sb.from('messages')
+                .update({ author: newAuthor, delete_password: newPassword })
+                .eq('author', oldAuthor)
+                .eq('delete_password', oldPassword);
+            if (errMsg) console.error('留言更新失败:', errMsg);
+        }
+        
+        saveProfile(newAuthor, newPassword);
+        showToast('个人信息已保存，历史数据已同步');
+        closeProfileModal();
+        await loadSubmissions(); // 刷新图库统计
+        if (messageSection.classList.contains('active')) await loadMessages();
     });
 
     function openSubmitModal() {
