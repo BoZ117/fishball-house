@@ -6,7 +6,7 @@
     <title>鱼丸的小屋</title>
     <!-- JSZip 国内镜像（字节跳动 CDN） -->
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Supabase SDK 国内镜像（使用 unpkg，备用 jsdelivr） -->
+    <!-- Supabase SDK 国内镜像（unpkg） -->
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -199,6 +199,7 @@
             cursor: pointer; font-size: 1rem; transition: all 0.2s;
             background: rgba(232,148,90,0.1); color: var(--accent-deep);
             touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            position: relative; z-index: 5;
         }
         .card-action-btn:active { transform: scale(0.9); background: rgba(232,148,90,0.25); }
         .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
@@ -297,7 +298,8 @@
         <div class="hero-image-wrapper">
             <div class="hero-image-glow"></div>
             <div class="hero-image-frame" id="heroImageFrame">
-                <img src="1.jpg" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
+                <!-- 👇 请将 src 改为你自己的图片文件名（如 ./hero.jpg） -->
+                <img src="./1.jpg" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
             </div>
         </div>
         <div class="hero-stats" id="heroStats">
@@ -624,6 +626,7 @@
             </div>`;
         }).join('');
 
+        // 下载按钮
         document.querySelectorAll('[data-action="download"]').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.stopPropagation();
@@ -631,6 +634,7 @@
             });
         });
 
+        // 删除按钮（仅使用 click 事件，兼容 QQ 浏览器）
         const deleteHandler = async (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -658,7 +662,7 @@
 
         document.querySelectorAll('[data-action="delete"], [data-action="admin-delete"]').forEach(btn => {
             btn.addEventListener('click', deleteHandler);
-            btn.addEventListener('touchend', deleteHandler, { passive: false });
+            // 不再添加 touchend 监听
         });
 
         document.querySelectorAll('.image-card').forEach(card => {
@@ -695,7 +699,7 @@
     }
     function closeLightbox() { lightboxOverlay.classList.remove('active'); document.body.style.overflow = ''; currentLightboxImage = null; }
 
-    // 留言板
+    // 留言板（移除 touchend，只使用 click）
     async function loadMessages() {
         const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false });
         if (error) { messageList.innerHTML = '<p style="text-align:center;color:#999;">加载留言失败</p>'; return; }
@@ -733,7 +737,7 @@
                 await updateStats();
             };
             btn.addEventListener('click', handler);
-            btn.addEventListener('touchend', handler, { passive: false });
+            // 移除 touchend 监听
         });
     }
 
