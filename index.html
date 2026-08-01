@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
+    <!-- JSZip 国内镜像 -->
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Supabase SDK 国内镜像 -->
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -79,7 +81,6 @@
         .hero-subtitle.show { opacity: 1; transform: translateY(0); }
 
         .hero-image-wrapper { position: relative; margin: 32px 0 28px; transition: transform 0.5s var(--transition-spring); }
-        .hero-image-wrapper:active { transform: scale(0.97); }
         .hero-image-glow {
             position: absolute; inset: -30px; border-radius: var(--radius-xl);
             background: radial-gradient(ellipse at center, rgba(44,44,44,0.1) 0%, transparent 70%);
@@ -182,6 +183,7 @@
         }
         .image-card-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; min-height: 1.2em; }
         .image-card-author { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .my-badge { font-size: 0.7rem; margin-left: 4px; color: var(--accent-deep); }
         .badge-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
         .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
         .badge-preset { background: #FFF3E6; color: #C07840; }
@@ -418,7 +420,7 @@
             <div class="form-group">
                 <label class="form-label">删除密码</label>
                 <input type="text" class="form-input" id="profilePassword" placeholder="设置删除密码" maxlength="20" required>
-                <span style="font-size:0.7rem;color:var(--text-muted);">修改昵称或密码时，将自动更新所有历史投稿和留言</span>
+                <span style="font-size:0.7rem;color:var(--text-muted);">修改昵称或密码时，将自动同步所有历史投稿和留言</span>
             </div>
             <button type="submit" class="form-submit">💾 保存信息</button>
         </form>
@@ -682,10 +684,7 @@
     };
 
     async function downloadSelected() {
-        if (selectedIndices.size === 0) {
-            showToast('请先选择图片');
-            return;
-        }
+        if (selectedIndices.size === 0) { showToast('请先选择图片'); return; }
         showToast('📦 打包中...');
         const all = getAllImages();
         const zip = new JSZip();
@@ -693,13 +692,7 @@
         const promises = [];
         selectedIndices.forEach(i => {
             const img = all[i];
-            if (img) {
-                promises.push(
-                    fetch(img.src).then(r => r.blob()).then(blob => {
-                        folder.file(`${i+1}_${img.title || 'image'}.jpg`, blob);
-                    }).catch(() => {})
-                );
-            }
+            if (img) promises.push(fetch(img.src).then(r => r.blob()).then(blob => folder.file(`${i+1}_${img.title || 'image'}.jpg`, blob)).catch(() => {}));
         });
         await Promise.all(promises);
         const content = await zip.generateAsync({ type: 'blob' });
@@ -720,34 +713,26 @@
             galleryGrid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-muted);width:100%;">🖼️<br>图库空空，快去投稿吧</div>`;
             return;
         }
+        const profile = getProfile();
         galleryGrid.innerHTML = all.map((img, i) => {
             const isSub = img.id && img.id.startsWith('sub-');
             const timeStr = isSub ? new Date(img.submittedAt).toLocaleDateString() : '精选';
+            const isMine = isSub && profile.author && profile.password && img.author === profile.author && img.delete_password === profile.password;
             const checkedAttr = selectedIndices.has(i) ? 'checked' : '';
             let actionButtons = '';
             if (isSub) {
-                if (adminMode) {
-                    actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', true); event.stopPropagation();">🔧</button>`;
-                } else {
-                    actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', false); event.stopPropagation();">✕</button>`;
-                }
+                if (adminMode) actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', true); event.stopPropagation();">🔧</button>`;
+                else actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImage('${img.id}', '${img.title.replace(/'/g, "\\'")}', false); event.stopPropagation();">✕</button>`;
             }
-            if (!selectMode) {
-                actionButtons += `<button class="card-action-btn" onclick="downloadSingleGlobal(${i}); event.stopPropagation();">⬇</button>`;
-            }
+            if (!selectMode) actionButtons += `<button class="card-action-btn" onclick="downloadSingleGlobal(${i}); event.stopPropagation();">⬇</button>`;
             const cardClick = selectMode ? `toggleSelectImage(${i}); event.stopPropagation();` : `if(!event.target.closest('button')) openLightbox(${i});`;
             return `<div class="image-card" data-index="${i}" data-id="${img.id}" onclick="${cardClick}">
                 <input type="checkbox" class="select-checkbox" data-index="${i}" ${checkedAttr}>
-                <div class="image-card-inner">
-                    <img src="${img.src}" alt="${img.title}" loading="lazy" onerror="this.parentElement.parentElement.style.display='none';">
-                    <div class="image-time-overlay">${timeStr}</div>
-                </div>
+                <div class="image-card-inner"><img src="${img.src}" alt="${img.title}" loading="lazy" onerror="this.parentElement.parentElement.style.display='none';"><div class="image-time-overlay">${timeStr}</div></div>
                 <div class="image-card-info">
                     <span class="image-card-title">${img.title ? img.title.replace(/</g,'&lt;') : ''}</span>
-                    <span class="image-card-author">by ${img.author.replace(/</g,'&lt;')}</span>
-                    <div class="badge-row">
-                        <span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span>
-                    </div>
+                    <span class="image-card-author">by ${img.author.replace(/</g,'&lt;')}${isMine ? '<span class="my-badge">✔️</span>' : ''}</span>
+                    <div class="badge-row"><span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span></div>
                     ${!selectMode ? `<div class="image-card-actions">${actionButtons}</div>` : ''}
                 </div>
             </div>`;
@@ -775,17 +760,16 @@
         const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false });
         if (error) { messageList.innerHTML = '<p style="text-align:center;color:#999;">加载留言失败</p>'; return; }
         if (!data.length) { messageList.innerHTML = '<p style="text-align:center;color:#999;">暂无留言，快来写下你与鱼丸的故事吧～</p>'; return; }
-        messageList.innerHTML = data.map(m => `
-            <div class="message-item">
-                <div class="msg-author">${m.show_author ? m.author : '匿名'}</div>
+        const profile = getProfile();
+        messageList.innerHTML = data.map(m => {
+            const isMine = profile.author && profile.password && m.author === profile.author && m.delete_password === profile.password;
+            return `<div class="message-item">
+                <div class="msg-author">${m.show_author ? m.author : '匿名'}${isMine ? ' <span style="color:var(--accent-deep);">✔️</span>' : ''}</div>
                 <div class="msg-text">${m.content}</div>
                 <div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
-                ${adminMode 
-                    ? `<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>`
-                    : `<button class="msg-delete" onclick="deleteMessage(${m.id})">✕</button>`
-                }
-            </div>
-        `).join('');
+                ${adminMode ? `<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>` : `<button class="msg-delete" onclick="deleteMessage(${m.id})">✕</button>`}
+            </div>`;
+        }).join('');
     }
 
     window.deleteMessage = async function(id) {
@@ -810,10 +794,7 @@
     messageForm.addEventListener('submit', async e => {
         e.preventDefault();
         const profile = getProfile();
-        if (!profile.author || !profile.password) {
-            showToast('请先在个人主页设置昵称和密码');
-            return;
-        }
+        if (!profile.author || !profile.password) { showToast('请先在个人主页设置昵称和密码'); return; }
         const content = msgContent.value.trim();
         if (!content) return showToast('请输入留言内容');
         const anonymous = msgAnonymous.checked;
@@ -830,7 +811,7 @@
         await updateStats();
     });
 
-    // 个人主页统计（昵称+密码匹配）
+    // 个人主页统计
     async function updateProfileStats() {
         const profile = getProfile();
         const author = (profile.author || '').trim();
@@ -840,14 +821,8 @@
             document.getElementById('profileMessages').textContent = 0;
             return;
         }
-        const { count: subCount } = await sb.from('submissions')
-            .select('*', { count: 'exact', head: true })
-            .eq('author', author)
-            .eq('delete_password', password);
-        const { count: msgCount } = await sb.from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('author', author)
-            .eq('delete_password', password);
+        const { count: subCount } = await sb.from('submissions').select('*', { count: 'exact', head: true }).eq('author', author).eq('delete_password', password);
+        const { count: msgCount } = await sb.from('messages').select('*', { count: 'exact', head: true }).eq('author', author).eq('delete_password', password);
         document.getElementById('profileSubmissions').textContent = subCount || 0;
         document.getElementById('profileMessages').textContent = msgCount || 0;
     }
@@ -859,43 +834,31 @@
     }
     function closeProfileModal() { profileModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
 
-    // 修改密码时同步更新历史数据
+    // 修改密码时同步历史数据
     profileForm.addEventListener('submit', async e => {
         e.preventDefault();
         const oldProfile = getProfile();
-        const oldAuthor = oldProfile.author || '';
-        const oldPassword = oldProfile.password || '';
+        const oldAuthor = (oldProfile.author || '').trim();
+        const oldPassword = (oldProfile.password || '').trim();
         const newAuthor = profileAuthor.value.trim();
         const newPassword = profilePassword.value.trim();
         if (!newAuthor || !newPassword) return showToast('昵称和密码不能为空');
-        
-        // 如果有旧身份且与新身份不同，则更新数据库中的历史记录
+
         if (oldAuthor && oldPassword && (oldAuthor !== newAuthor || oldPassword !== newPassword)) {
-            // 更新投稿表
-            const { error: errSub } = await sb.from('submissions')
-                .update({ author: newAuthor, delete_password: newPassword })
-                .eq('author', oldAuthor)
-                .eq('delete_password', oldPassword);
-            if (errSub) console.error('投稿更新失败:', errSub);
-            
-            // 更新留言表
-            const { error: errMsg } = await sb.from('messages')
-                .update({ author: newAuthor, delete_password: newPassword })
-                .eq('author', oldAuthor)
-                .eq('delete_password', oldPassword);
+            const { error: errSub } = await sb.from('submissions').update({ author: newAuthor, delete_password: newPassword }).eq('author', oldAuthor).eq('delete_password', oldPassword);
+            if (errSub) { console.error('投稿更新失败:', errSub); showToast('历史投稿同步失败，请检查网络或权限'); }
+            const { error: errMsg } = await sb.from('messages').update({ author: newAuthor, delete_password: newPassword }).eq('author', oldAuthor).eq('delete_password', oldPassword);
             if (errMsg) console.error('留言更新失败:', errMsg);
         }
-        
         saveProfile(newAuthor, newPassword);
         showToast('个人信息已保存，历史数据已同步');
         closeProfileModal();
-        await loadSubmissions(); // 刷新图库统计
+        await loadSubmissions();
         if (messageSection.classList.contains('active')) await loadMessages();
     });
 
     function openSubmitModal() {
-        fileTitleMap.clear();
-        submitForm.reset();
+        fileTitleMap.clear(); submitForm.reset();
         filePreview.style.display = 'none'; filePreview.src = '';
         fileList.classList.remove('has-files'); fileList.innerHTML = '';
         submitModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden';
@@ -905,13 +868,8 @@
     submitForm.addEventListener('submit', async e => {
         e.preventDefault();
         const profile = getProfile();
-        if (!profile.author || !profile.password) {
-            showToast('请先在个人主页设置昵称和密码');
-            return;
-        }
+        if (!profile.author || !profile.password) { showToast('请先在个人主页设置昵称和密码'); return; }
         let title = inputTitle.value.trim();
-        const author = profile.author;
-        const password = profile.password;
         const files = inputFile.files;
         if (!files.length) return showToast('请选择至少一张图片');
         title = title.substring(0,15);
@@ -919,9 +877,7 @@
         let count = 0, skipped = 0;
         for (let i = 0; i < files.length; i++) {
             const f = files[i];
-            if (!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size > 10*1024*1024) {
-                skipped++; showToast(`⚠️ 跳过 "${f.name}"`); continue;
-            }
+            if (!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size > 10*1024*1024) { skipped++; showToast(`⚠️ 跳过 "${f.name}"`); continue; }
             try {
                 btnSubmitForm.textContent = `⏳ 上传中 (${i+1}/${files.length})...`;
                 const dataUrl = await new Promise((resolve, reject) => {
@@ -930,12 +886,7 @@
                 const key = f.name + '_' + f.size;
                 const customInput = document.querySelector(`.custom-title-input[data-file-key="${key}"]`);
                 let finalTitle = ''; if (customInput) finalTitle = customInput.value.trim();
-                const { error } = await sb.from('submissions').insert({
-                    title: finalTitle,
-                    author,
-                    image_data: dataUrl,
-                    delete_password: password
-                });
+                const { error } = await sb.from('submissions').insert({ title: finalTitle, author: profile.author, image_data: dataUrl, delete_password: profile.password });
                 if (error) { console.error('上传失败:', f.name, error); showToast(`⚠️ "${f.name}" 上传失败`); continue; }
                 count++;
             } catch (err) { console.error(err); showToast(`⚠️ "${f.name}" 处理出错`); continue; }
@@ -958,16 +909,10 @@
                 document.getElementById('btnAdminMode').textContent = '🔑 退出管理';
                 document.getElementById('btnAdminModeMsg').textContent = '🔑 退出管理';
                 showToast('已进入管理员模式');
-            } else {
-                showToast('❌ 管理员密码错误');
-                return;
-            }
+            } else { showToast('❌ 管理员密码错误'); return; }
         }
-        if (gallerySection.classList.contains('active')) {
-            renderGallery();
-        } else if (messageSection.classList.contains('active')) {
-            loadMessages();
-        }
+        if (gallerySection.classList.contains('active')) renderGallery();
+        else if (messageSection.classList.contains('active')) loadMessages();
     }
 
     document.getElementById('btnAdminMode').addEventListener('click', toggleAdminMode);
