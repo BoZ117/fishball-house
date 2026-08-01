@@ -183,7 +183,17 @@
         }
         .image-card-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; min-height: 1.2em; }
         .image-card-author { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-        .my-badge { font-size: 0.7rem; margin-left: 4px; color: var(--accent-deep); }
+        .my-tag {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent-deep);
+            font-size: 0.6rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 4px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
         .badge-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
         .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
         .badge-preset { background: #FFF3E6; color: #C07840; }
@@ -714,10 +724,12 @@
             return;
         }
         const profile = getProfile();
+        const currentAuthor = (profile.author || '').trim();
+        const currentPassword = (profile.password || '').trim();
         galleryGrid.innerHTML = all.map((img, i) => {
             const isSub = img.id && img.id.startsWith('sub-');
             const timeStr = isSub ? new Date(img.submittedAt).toLocaleDateString() : '精选';
-            const isMine = isSub && profile.author && profile.password && img.author === profile.author && img.delete_password === profile.password;
+            const isMine = isSub && currentAuthor && currentPassword && (img.author || '').trim() === currentAuthor && (img.delete_password || '').trim() === currentPassword;
             const checkedAttr = selectedIndices.has(i) ? 'checked' : '';
             let actionButtons = '';
             if (isSub) {
@@ -731,7 +743,7 @@
                 <div class="image-card-inner"><img src="${img.src}" alt="${img.title}" loading="lazy" onerror="this.parentElement.parentElement.style.display='none';"><div class="image-time-overlay">${timeStr}</div></div>
                 <div class="image-card-info">
                     <span class="image-card-title">${img.title ? img.title.replace(/</g,'&lt;') : ''}</span>
-                    <span class="image-card-author">by ${img.author.replace(/</g,'&lt;')}${isMine ? '<span class="my-badge">✔️</span>' : ''}</span>
+                    <span class="image-card-author">by ${img.author.replace(/</g,'&lt;')}${isMine ? '<span class="my-tag">我的</span>' : ''}</span>
                     <div class="badge-row"><span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span></div>
                     ${!selectMode ? `<div class="image-card-actions">${actionButtons}</div>` : ''}
                 </div>
@@ -761,10 +773,12 @@
         if (error) { messageList.innerHTML = '<p style="text-align:center;color:#999;">加载留言失败</p>'; return; }
         if (!data.length) { messageList.innerHTML = '<p style="text-align:center;color:#999;">暂无留言，快来写下你与鱼丸的故事吧～</p>'; return; }
         const profile = getProfile();
+        const currentAuthor = (profile.author || '').trim();
+        const currentPassword = (profile.password || '').trim();
         messageList.innerHTML = data.map(m => {
-            const isMine = profile.author && profile.password && m.author === profile.author && m.delete_password === profile.password;
+            const isMine = currentAuthor && currentPassword && (m.author || '').trim() === currentAuthor && (m.delete_password || '').trim() === currentPassword;
             return `<div class="message-item">
-                <div class="msg-author">${m.show_author ? m.author : '匿名'}${isMine ? ' <span style="color:var(--accent-deep);">✔️</span>' : ''}</div>
+                <div class="msg-author">${m.show_author ? m.author : '匿名'}${isMine ? ' <span class="my-tag">我的</span>' : ''}</div>
                 <div class="msg-text">${m.content}</div>
                 <div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
                 ${adminMode ? `<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>` : `<button class="msg-delete" onclick="deleteMessage(${m.id})">✕</button>`}
@@ -834,7 +848,7 @@
     }
     function closeProfileModal() { profileModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
 
-    // 修改密码时同步历史数据
+    // 修改密码时同步历史数据（增强版）
     profileForm.addEventListener('submit', async e => {
         e.preventDefault();
         const oldProfile = getProfile();
@@ -844,14 +858,28 @@
         const newPassword = profilePassword.value.trim();
         if (!newAuthor || !newPassword) return showToast('昵称和密码不能为空');
 
+        let updatedSub = 0, updatedMsg = 0;
         if (oldAuthor && oldPassword && (oldAuthor !== newAuthor || oldPassword !== newPassword)) {
-            const { error: errSub } = await sb.from('submissions').update({ author: newAuthor, delete_password: newPassword }).eq('author', oldAuthor).eq('delete_password', oldPassword);
+            // 更新投稿
+            const { data: subData, error: errSub } = await sb.from('submissions')
+                .update({ author: newAuthor, delete_password: newPassword })
+                .eq('author', oldAuthor)
+                .eq('delete_password', oldPassword)
+                .select('id');
             if (errSub) { console.error('投稿更新失败:', errSub); showToast('历史投稿同步失败，请检查网络或权限'); }
-            const { error: errMsg } = await sb.from('messages').update({ author: newAuthor, delete_password: newPassword }).eq('author', oldAuthor).eq('delete_password', oldPassword);
+            else if (subData) updatedSub = subData.length;
+
+            // 更新留言
+            const { data: msgData, error: errMsg } = await sb.from('messages')
+                .update({ author: newAuthor, delete_password: newPassword })
+                .eq('author', oldAuthor)
+                .eq('delete_password', oldPassword)
+                .select('id');
             if (errMsg) console.error('留言更新失败:', errMsg);
+            else if (msgData) updatedMsg = msgData.length;
         }
         saveProfile(newAuthor, newPassword);
-        showToast('个人信息已保存，历史数据已同步');
+        showToast(`个人信息已保存，同步了 ${updatedSub} 条投稿和 ${updatedMsg} 条留言`);
         closeProfileModal();
         await loadSubmissions();
         if (messageSection.classList.contains('active')) await loadMessages();
