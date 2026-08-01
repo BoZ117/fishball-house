@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
     <!-- JSZip 国内镜像（字节跳动 CDN） -->
-<script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- Supabase SDK 国内镜像（使用 unpkg，并添加跨域属性） -->
-<script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Supabase SDK 国内镜像（使用 unpkg，备用 jsdelivr） -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-cream: #FFF8F0;
@@ -273,20 +272,8 @@
             .gallery-grid { column-count: 2; column-gap: 8px; padding: 0 4px; }
             .image-card { margin-bottom: 8px; }
             .gallery-nav { flex-direction: column; align-items: flex-start; padding: 10px 14px; }
-            /* 修复移动端按钮一行显示 */
-            .gallery-nav-actions {
-                width: 100%;
-                flex-wrap: nowrap;
-                justify-content: space-between;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .btn {
-                padding: 5px 8px;
-                font-size: 0.7rem;
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
+            .gallery-nav-actions { width: 100%; flex-wrap: nowrap; justify-content: space-between; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .btn { padding: 5px 8px; font-size: 0.7rem; white-space: nowrap; flex-shrink: 0; }
             .stats-bar { margin: 8px 8px 14px; gap: 16px; font-size: 0.9rem; padding: 14px 18px; }
             .hero-stats { flex-direction: column; gap: 8px; padding: 10px 20px; }
             .hero-title { font-size: 2rem; }
