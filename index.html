@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
+    <!-- 版本：2026.08.04-02 -->
     <link rel="manifest" href="/manifest.json">
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -184,7 +185,6 @@
         .verification-group { margin-top:12px; padding:12px; background:#FFF9F4; border-radius:8px; border:1px dashed var(--accent-light); }
         .load-more { text-align:center; padding:20px; color:var(--text-muted); cursor:pointer; }
 
-        /* 强化提交按钮样式，防止被覆盖 */
         .form-submit {
             display: block !important;
             width: 100% !important;
@@ -248,12 +248,11 @@
             <span class="gallery-nav-title">🏠 鱼丸的小屋</span>
             <div class="gallery-nav-actions">
                 <button class="btn btn-profile" id="btnOpenProfile">👤 我的</button>
-                <!-- 内联onclick绑定投稿按钮 -->
-                <button class="btn btn-outline" id="btnOpenSubmit" onclick="openSubmitModal()">💌 投稿</button>
-                <button class="btn btn-primary" id="btnSelectDownload" onclick="toggleSelectMode()">📦 多选下载</button>
-                <button class="btn btn-cancel-select" id="btnCancelSelect" onclick="cancelSelectMode()" style="display:none;">取消</button>
-                <button class="btn btn-select-download" id="btnDownloadSelected" onclick="downloadSelected()" style="display:none;">下载选中 (0)</button>
-                <button class="btn btn-admin" id="btnAdminMode" onclick="toggleAdminMode()">🔑 管理</button>
+                <button class="btn btn-outline" id="btnOpenSubmit">💌 投稿</button>
+                <button class="btn btn-primary" id="btnSelectDownload">📦 多选下载</button>
+                <button class="btn btn-cancel-select" id="btnCancelSelect" style="display:none;">取消</button>
+                <button class="btn btn-select-download" id="btnDownloadSelected" style="display:none;">下载选中 (0)</button>
+                <button class="btn btn-admin" id="btnAdminMode">🔑 管理</button>
             </div>
         </nav>
         <div class="stats-bar">
@@ -266,22 +265,22 @@
         <div class="more-box">
             <div class="more-title">更 多</div>
             <div class="more-links">
-                <button class="more-link" id="btnOpenMessages" onclick="goToMessages()">💬 留言板（写与鱼丸的故事）</button>
-                <button class="more-link" id="btnOpenAbout" onclick="document.getElementById('aboutModalOverlay').classList.add('active'); document.body.style.overflow='hidden';">ℹ️ 关于</button>
+                <button class="more-link" id="btnOpenMessages">💬 留言板（写与鱼丸的故事）</button>
+                <button class="more-link" id="btnOpenAbout">ℹ️ 关于</button>
             </div>
         </div>
     </section>
 
     <section class="message-section" id="messageSection">
         <nav class="gallery-nav">
-            <button class="btn btn-back" id="btnBackFromMessages" onclick="backToGallery()">← 返回小屋</button>
+            <button class="btn btn-back" id="btnBackFromMessages">← 返回小屋</button>
             <span class="gallery-nav-title">💬 留言板 · 与鱼丸的故事</span>
-            <button class="btn btn-admin" id="btnAdminModeMsg" onclick="toggleAdminMode()">🔑 管理</button>
+            <button class="btn btn-admin" id="btnAdminModeMsg">🔑 管理</button>
         </nav>
         <div class="message-container">
             <div class="message-list" id="messageList"></div>
             <div id="msgLoadMore" class="load-more" style="display:none;"></div>
-            <form id="messageForm" class="message-form" onsubmit="handleMessageSubmit(event)">
+            <form id="messageForm" class="message-form">
                 <textarea id="msgContent" placeholder="写下你与鱼丸的故事..." maxlength="500" required></textarea>
                 <div class="form-row">
                     <label class="anonymous-check"><input type="checkbox" id="msgAnonymous"> 匿名发布（不显示昵称）</label>
@@ -295,9 +294,9 @@
 <!-- 投稿弹窗 -->
 <div class="modal-overlay" id="submitModalOverlay">
     <div class="modal-dialog" style="max-width:500px;">
-        <button class="modal-close" id="btnModalClose" onclick="closeSubmitModal()">✕</button>
+        <button class="modal-close" id="btnModalClose">✕</button>
         <h2 style="text-align:center; margin-bottom:20px;">📸 批量投稿</h2>
-        <form id="submitForm" onsubmit="handleSubmitForm(event)">
+        <form id="submitForm">
             <div class="form-group">
                 <label class="form-label">图片标题（可留空）</label>
                 <input type="text" class="form-input" id="inputTitle" maxlength="15" placeholder="可不填，标题默认为空">
@@ -314,7 +313,7 @@
                 <div class="file-list" id="fileList"></div>
             </div>
             <button type="submit" class="form-submit" id="btnSubmitForm">✨ 提交投稿</button>
-            <button type="button" class="form-submit" id="retryFailedBtn" style="display:none; background:#c0392b;" onclick="retryUpload()">重试失败文件</button>
+            <button type="button" class="form-submit" id="retryFailedBtn" style="display:none; background:#c0392b;">重试失败文件</button>
         </form>
     </div>
 </div>
@@ -322,20 +321,20 @@
 <!-- 个人主页弹窗 -->
 <div class="modal-overlay" id="profileModalOverlay">
     <div class="modal-dialog">
-        <button class="modal-close" id="btnProfileClose" onclick="closeProfileModal()">✕</button>
+        <button class="modal-close" id="btnProfileClose">✕</button>
         <div class="profile-avatar">👤</div>
         <h2 style="text-align:center;">个人主页</h2>
         <div class="profile-stats">
             <span>📸 我的投稿：<strong id="profileSubmissions">0</strong> 张</span><br>
             <span>💬 我的留言：<strong id="profileMessages">0</strong> 条</span>
         </div>
-        <form id="profileForm" onsubmit="handleProfileSubmit(event)">
+        <form id="profileForm">
             <div class="form-group"><label class="form-label">你的昵称</label><input class="form-input" id="profileAuthor" maxlength="10" placeholder="输入昵称" required></div>
             <div class="form-group">
                 <label class="form-label">专属码</label>
                 <input class="form-input" id="profileCode" maxlength="20" placeholder="输入已有专属码或自动生成">
                 <span class="profile-hint" id="codeHint">换设备时输入此码可同步身份，修改后历史数据自动迁移</span>
-                <button type="button" class="btn btn-outline" id="copyCodeBtn" style="display:none; margin-top:8px;" onclick="copyCode()">📋 复制专属码</button>
+                <button type="button" class="btn btn-outline" id="copyCodeBtn" style="display:none; margin-top:8px;">📋 复制专属码</button>
             </div>
             <div id="verificationArea" style="display:none;" class="verification-group">
                 <p style="font-size:0.8rem;color:#c0392b;">⚠️ 该昵称已被注册，请输入您的专属码以验证身份</p>
@@ -349,7 +348,7 @@
 <!-- 关于弹窗 -->
 <div class="modal-overlay" id="aboutModalOverlay">
     <div class="modal-dialog about-modal">
-        <button class="modal-close" id="btnAboutClose" onclick="document.getElementById('aboutModalOverlay').classList.remove('active'); document.body.style.overflow='';">✕</button>
+        <button class="modal-close" id="btnAboutClose">✕</button>
         <h2 style="font-family:'Georgia',serif; margin-bottom:16px;">关于鱼丸的小屋</h2>
         <p><strong>创立年份：</strong>2026</p>
         <p>传递温暖，分享回忆</p>
@@ -371,7 +370,7 @@
             <label class="form-label">您的专属码（请务必保存）</label>
             <div style="display:flex; gap:8px;">
                 <input class="form-input" id="copyCodeInput" readonly>
-                <button class="btn btn-primary" id="copyConfirmBtn" onclick="copyCodeFromConfirm()">📋 复制</button>
+                <button class="btn btn-primary" id="copyConfirmBtn">📋 复制</button>
             </div>
         </div>
         <div class="confirm-buttons" style="display:flex; gap:10px; margin-top:20px;">
@@ -384,9 +383,9 @@
 <!-- 灯箱 -->
 <div class="lightbox-overlay" id="lightboxOverlay">
     <div class="lightbox-content">
-        <button class="lightbox-close" id="btnLightboxClose" onclick="closeLightbox()">✕</button>
+        <button class="lightbox-close" id="btnLightboxClose">✕</button>
         <img id="lightboxImage" src="" alt="预览">
-        <button class="lightbox-download" id="btnLightboxDownload" onclick="downloadCurrent()">⬇ 下载这张图</button>
+        <button class="lightbox-download" id="btnLightboxDownload">⬇ 下载这张图</button>
     </div>
 </div>
 <div class="toast-container" id="toastContainer"></div>
@@ -413,8 +412,12 @@
     window.onerror = (msg,url,line) => { console.error(msg); showToast('⚠️ 页面错误，请刷新'); };
     window.addEventListener('unhandledrejection', e => { console.error(e.reason); showToast('⚠️ 网络异常'); });
 
+    // Service Worker 注册（强制更新）
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(()=>{});
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(reg => {
+            reg.update();
+            console.log('SW 注册成功，版本已更新');
+        }).catch(err => console.warn('SW 注册失败:', err));
     }
 
     const PROFILE_KEY = 'fishball_profile', CODE_KEY = 'fishball_user_code', DRAFT_KEY = 'fishball_draft';
@@ -426,7 +429,6 @@
     let currentPage = 0, hasMoreImages = true, isLoadingImages = false;
     let messagePage = 0, hasMoreMessages = true, isLoadingMessages = false;
     let existingServerCode = null;
-    const fileTitleMap = new Map();
     let retryFiles = [];
     let syncInterval = null;
     let galleryScrollY = 0;
@@ -462,7 +464,38 @@
         });
     }
 
+    // 弹窗容错：确保确认弹窗元素存在
+    function ensureConfirmModal() {
+        if (!document.getElementById('confirmModal')) {
+            const modal = document.createElement('div');
+            modal.id = 'confirmModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-dialog">
+                    <h3 id="confirmTitle">确认</h3>
+                    <p id="confirmMessage"></p>
+                    <div class="form-group" id="confirmPasswordGroup" style="display:none;">
+                        <label class="form-label">管理员密码</label>
+                        <input type="password" class="form-input" id="confirmPasswordInput" placeholder="请输入管理密码">
+                    </div>
+                    <div class="form-group" id="copySection" style="display:none;">
+                        <label class="form-label">您的专属码（请务必保存）</label>
+                        <div style="display:flex; gap:8px;">
+                            <input class="form-input" id="copyCodeInput" readonly>
+                            <button class="btn btn-primary" id="copyConfirmBtn">📋 复制</button>
+                        </div>
+                    </div>
+                    <div class="confirm-buttons" style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn btn-outline" id="confirmCancel">取消</button>
+                        <button class="btn btn-danger" id="confirmOk">确认</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+        }
+    }
+
     function showConfirm(message, options={}) {
+        ensureConfirmModal();
         return new Promise(resolve => {
             const modal = document.getElementById('confirmModal');
             document.getElementById('confirmTitle').textContent = options.title || '确认操作';
@@ -492,16 +525,13 @@
         });
     }
 
-    function copyCodeFromConfirm() {
-        const code = document.getElementById('copyCodeInput').value;
-        navigator.clipboard.writeText(code).then(() => showToast('✅ 专属码已复制'));
-    }
-
+    // 复制专属码
     function copyCode() {
         const code = document.getElementById('profileCode').value;
         navigator.clipboard.writeText(code).then(() => showToast('✅ 专属码已复制'));
     }
 
+    // 数据库加载与渲染
     async function updateStats() {
         const total = submissionImages.length + PRESET_IMAGES.length;
         const authors = new Set(submissionImages.map(i => `${i.author}::${i.user_code}`));
@@ -566,6 +596,7 @@
         grid.appendChild(frag);
     }
 
+    // 事件委托
     document.getElementById('galleryGrid').addEventListener('click', function(e) {
         if (e.target.closest('button, .card-action-btn')) return;
         if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
@@ -618,28 +649,23 @@
         if(!hasMoreMessages) { msgSentinel.style.display = 'none'; }
     }
 
-    function handleMessageSubmit(e) {
+    // 留言提交
+    document.getElementById('messageForm').addEventListener('submit', async e => {
         e.preventDefault();
         const profile = getProfile();
         if(!profile.author || !profile.code) return showToast('请先设置个人身份');
         const content = document.getElementById('msgContent').value.trim();
         if(!content) return;
         const anon = document.getElementById('msgAnonymous').checked;
-        sb.from('messages').insert({ author:profile.author, content, user_code:profile.code, show_author:!anon }).then(({error}) => {
-            if(error) return showToast('留言失败');
-            document.getElementById('msgContent').value = '';
-            showToast('留言成功！');
-            loadMessages(true);
-        });
-    }
+        const { error } = await sb.from('messages').insert({ author:profile.author, content, user_code:profile.code, show_author:!anon });
+        if(error) return showToast('留言失败');
+        document.getElementById('msgContent').value = '';
+        showToast('留言成功！');
+        loadMessages(true);
+    });
 
+    // 下载
     window.downloadSingle = url => { const a=document.createElement('a'); a.href=url; a.download=''; document.body.appendChild(a); a.click(); a.remove(); };
-
-    function downloadCurrent() {
-        const src = document.getElementById('lightboxImage').src;
-        if (src) window.downloadSingle(src);
-    }
-
     async function downloadSelected() {
         if(!selectedIndices.size) return showToast('请先选择图片');
         showToast('📦 打包中...');
@@ -695,19 +721,11 @@
         updateSelectedCount();
     };
 
-    function openLightbox(url) {
-        if (selectMode) return;
-        document.getElementById('lightboxImage').src = url;
-        document.getElementById('lightboxOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+    // 灯箱
+    function openLightbox(url) { if(selectMode) return; document.getElementById('lightboxImage').src=url; document.getElementById('lightboxOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
+    function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); document.body.style.overflow=''; }
 
-    function closeLightbox() {
-        document.getElementById('lightboxOverlay').classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // 弹窗控制
+    // 投稿弹窗
     function openSubmitModal() {
         if(!getProfile().code) return showToast('请先设置个人身份');
         const draft = loadDraft();
@@ -728,33 +746,7 @@
         document.body.style.overflow = '';
     }
 
-    // 投稿表单提交
-    async function handleSubmitForm(e) {
-        e.preventDefault();
-        const profile = getProfile();
-        if(!profile.author || !profile.code) return showToast('请先设置个人身份');
-        const files = document.getElementById('inputFile').files;
-        if(!files.length) return showToast('请选择至少一张图片');
-        const btn = document.getElementById('btnSubmitForm');
-        btn.disabled = true;
-        const count = await uploadFiles(files, profile, btn);
-        if(count>0) {
-            closeSubmitModal();
-            showToast(`🎉 成功投稿 ${count} 张`);
-            clearDraft();
-            loadSubmissions(true);
-        }
-        btn.disabled = false;
-        btn.textContent = '✨ 提交投稿';
-        const retryBtn = document.getElementById('retryFailedBtn');
-        if(retryFiles.length) {
-            retryBtn.style.display = 'block';
-            retryBtn.textContent = `重试失败文件 (${retryFiles.length})`;
-        } else {
-            retryBtn.style.display = 'none';
-        }
-    }
-
+    // 上传逻辑
     async function uploadFiles(files, profile, btn) {
         let count = 0;
         retryFiles = [];
@@ -779,18 +771,43 @@
         return count;
     }
 
-    function retryUpload() {
+    document.getElementById('submitForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const profile = getProfile();
+        if(!profile.author || !profile.code) return showToast('请先设置个人身份');
+        const files = document.getElementById('inputFile').files;
+        if(!files.length) return showToast('请选择至少一张图片');
+        const btn = document.getElementById('btnSubmitForm');
+        btn.disabled = true;
+        const count = await uploadFiles(files, profile, btn);
+        if(count>0) {
+            closeSubmitModal();
+            showToast(`🎉 成功投稿 ${count} 张`);
+            clearDraft();
+            loadSubmissions(true);
+        }
+        btn.disabled = false;
+        btn.textContent = '✨ 提交投稿';
+        const retryBtn = document.getElementById('retryFailedBtn');
+        if(retryFiles.length) {
+            retryBtn.style.display = 'block';
+            retryBtn.textContent = `重试失败文件 (${retryFiles.length})`;
+        } else {
+            retryBtn.style.display = 'none';
+        }
+    });
+
+    document.getElementById('retryFailedBtn').addEventListener('click', async () => {
         if(!retryFiles.length) return;
         const profile = getProfile();
         const btn = document.getElementById('retryFailedBtn');
         btn.disabled = true;
-        uploadFiles(retryFiles, profile, btn).then(count => {
-            if(count>0){ showToast(`✅ 补传 ${count} 张`); loadSubmissions(true); }
-            btn.disabled = false; btn.style.display = 'none'; retryFiles = [];
-        });
-    }
+        const count = await uploadFiles(retryFiles, profile, btn);
+        if(count>0){ showToast(`✅ 补传 ${count} 张`); loadSubmissions(true); }
+        btn.disabled = false; btn.style.display = 'none'; retryFiles = [];
+    });
 
-    // 管理员相关
+    // 删除操作
     window.deleteImageAdmin = async id => {
         const res = await showConfirm('确定永久删除该投稿吗？', {title:'管理员删除'});
         if(!res.confirmed) return;
@@ -799,7 +816,10 @@
         const { data: row } = await sb.from('submissions').select('image_url').eq('id', numericId).single();
         const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: adminPassword });
         if(error) return showToast('❌ 删除失败');
-        if(row && row.image_url) await deleteStorageFile(row.image_url);
+        if(row && row.image_url) {
+            const path = row.image_url.split('/public/fishball-home/')[1];
+            if(path) sb.storage.from('fishball-home').remove([path]);
+        }
         showToast('🗑️ 已删除'); loadSubmissions(true);
     };
     window.deleteMessageAdmin = async id => {
@@ -819,7 +839,10 @@
         const { data: row } = await sb.from('submissions').select('image_url').eq('id', numericId).single();
         const { error } = await sb.rpc('delete_own_submission', { submission_id: numericId, author_name: profile.author, code: profile.code });
         if(error) return showToast('❌ 删除失败');
-        if(row && row.image_url) await deleteStorageFile(row.image_url);
+        if(row && row.image_url) {
+            const path = row.image_url.split('/public/fishball-home/')[1];
+            if(path) sb.storage.from('fishball-home').remove([path]);
+        }
         showToast('🗑️ 已删除'); loadSubmissions(true);
     };
     window.deleteOwnMessage = async id => {
@@ -831,13 +854,7 @@
         showToast('🗑️ 已删除'); loadMessages(true);
     };
 
-    async function deleteStorageFile(url) {
-        const path = url.replace('/public/fishball-home/','');
-        if (!path) return;
-        const { error } = await sb.storage.from('fishball-home').remove([path]);
-        if (error) console.warn('Storage 文件删除失败:', error);
-    }
-
+    // 管理员模式
     async function enterAdminMode() {
         const res = await showConfirm('请输入管理员密码', {title:'管理员验证', requirePassword:true});
         if(!res.confirmed || !res.password) return;
@@ -850,38 +867,19 @@
         renderGallery();
         if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
     }
-
-    function exitAdminMode(silent=false) {
+    function exitAdminMode() {
         adminMode = false; adminPassword = null;
         document.getElementById('btnAdminMode').textContent = '🔑 管理';
         document.getElementById('btnAdminModeMsg').textContent = '🔑 管理';
-        if(!silent) showToast('已退出管理员模式');
+        showToast('已退出管理员模式');
         renderGallery();
         if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
     }
 
-    function toggleAdminMode() { adminMode ? exitAdminMode() : enterAdminMode(); }
-
+    // 个人主页
     async function checkAuthorExists(name) { const { data } = await sb.rpc('lookup_profile_code', { p_author:name.trim() }); return data; }
 
-    async function syncProfileFromServer() {
-        const profile = getProfile();
-        if(!profile.code) return;
-        const { data, error } = await sb.rpc('get_author_by_code', { p_code:profile.code });
-        if(error || !data) return;
-        if(data !== profile.author) {
-            saveProfile(data, profile.code);
-            showToast('ℹ️ 昵称已自动同步');
-            renderGallery();
-            if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
-        }
-    }
-
-    function startAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(syncProfileFromServer, 30000); }
-    function stopAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = null; }
-    document.addEventListener('visibilitychange', () => { document.hidden ? stopAutoSync() : (startAutoSync(), syncProfileFromServer()); });
-
-    function openProfileModal() {
+    async function openProfileModal() {
         const p = getProfile();
         document.getElementById('profileAuthor').value = p.author;
         document.getElementById('profileCode').value = p.code || '';
@@ -909,8 +907,8 @@
         document.getElementById('profileMessages').textContent = msgCount || 0;
     }
 
-    // 个人主页表单提交
-    function handleProfileSubmit(e) {
+    // 个人主页表单
+    document.getElementById('profileForm').addEventListener('submit', async e => {
         e.preventDefault();
         const newName = document.getElementById('profileAuthor').value.trim();
         if(!newName) return showToast('昵称不能为空');
@@ -919,38 +917,13 @@
 
         if(oldCode) {
             if(old.author !== newName) {
-                checkAuthorExists(newName).then(exist => {
-                    if(exist && exist!==oldCode) return showToast('该昵称已被注册');
-                    sb.rpc('update_profile_author', { old_author:old.author, new_author:newName, p_code:oldCode }).then(() => {
-                        let newCode = document.getElementById('profileCode').value.trim() || oldCode;
-                        if(newCode !== oldCode) {
-                            sb.rpc('update_user_code', { old_code:oldCode, new_code:newCode }).then(() => {
-                                saveProfile(newName, newCode);
-                                showToast('个人信息已保存');
-                                closeProfileModal();
-                                loadSubmissions(true);
-                            });
-                        } else {
-                            saveProfile(newName, oldCode);
-                            showToast('个人信息已保存');
-                            closeProfileModal();
-                            loadSubmissions(true);
-                        }
-                    });
-                });
-                return;
+                const exist = await checkAuthorExists(newName);
+                if(exist && exist!==oldCode) return showToast('该昵称已被注册');
+                await sb.rpc('update_profile_author', { old_author:old.author, new_author:newName, p_code:oldCode });
             }
             let newCode = document.getElementById('profileCode').value.trim() || oldCode;
-            if(newCode !== oldCode) {
-                sb.rpc('update_user_code', { old_code:oldCode, new_code:newCode }).then(() => {
-                    saveProfile(newName, newCode);
-                    showToast('个人信息已保存');
-                    closeProfileModal();
-                    loadSubmissions(true);
-                });
-                return;
-            }
-            saveProfile(newName, oldCode);
+            if(newCode !== oldCode) await sb.rpc('update_user_code', { old_code:oldCode, new_code:newCode });
+            saveProfile(newName, newCode);
             showToast('个人信息已保存');
             closeProfileModal();
             loadSubmissions(true);
@@ -969,35 +942,62 @@
         }
 
         let newCode = document.getElementById('profileCode').value.trim() || generateUserCode();
-        sb.rpc('register_profile', { p_author:newName, p_code:newCode }).then(({error}) => {
-            if(error) { showToast(error.message.includes('unique')?'昵称已被注册':'注册失败'); return; }
-            saveProfile(newName, newCode);
-            showConfirm('身份创建成功！请务必保存您的专属码，遗失无法找回。', { title:'🎉 注册成功', codeToCopy:newCode });
-            closeProfileModal();
-            loadSubmissions(true);
-        });
+        const { error } = await sb.rpc('register_profile', { p_author:newName, p_code:newCode });
+        if(error) { showToast(error.message.includes('unique')?'昵称已被注册':'注册失败'); return; }
+        saveProfile(newName, newCode);
+        await showConfirm('身份创建成功！请务必保存您的专属码，遗失无法找回。', { title:'🎉 注册成功', codeToCopy:newCode });
+        closeProfileModal();
+        loadSubmissions(true);
+    });
+
+    // 昵称失焦检查
+    document.getElementById('profileAuthor').addEventListener('blur', async function() {
+        const newName = this.value.trim();
+        if(!newName) { document.getElementById('verificationArea').style.display='none'; existingServerCode=null; return; }
+        const old = getProfile();
+        if(old.author===newName && old.code) { document.getElementById('verificationArea').style.display='none'; return; }
+        const code = await checkAuthorExists(newName);
+        if(code) {
+            existingServerCode = code;
+            if(old.code===code) {
+                document.getElementById('verificationArea').style.display='none';
+                document.getElementById('profileCode').value = code;
+            } else if(!old.code) {
+                document.getElementById('verificationArea').style.display='block';
+                document.getElementById('profileCode').value = '';
+                document.getElementById('codeHint').textContent = '该昵称已注册，请输入您的专属码以验证身份';
+            } else { showToast('该昵称已被使用'); this.value = old.author; }
+        } else {
+            existingServerCode = null;
+            document.getElementById('verificationArea').style.display='none';
+            if(!old.code) {
+                document.getElementById('profileCode').value = generateUserCode();
+                document.getElementById('codeHint').textContent = '这是您的新专属码，请牢记！换设备时可用此码恢复身份';
+            }
+        }
+    });
+
+    // 多设备同步
+    async function syncProfileFromServer() {
+        const profile = getProfile();
+        if(!profile.code) return;
+        const { data, error } = await sb.rpc('get_author_by_code', { p_code:profile.code });
+        if(error || !data) return;
+        if(data !== profile.author) {
+            saveProfile(data, profile.code);
+            showToast('ℹ️ 昵称已自动同步');
+            renderGallery();
+            if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
+        }
     }
 
-    // 导航
-    function goToMessages() {
-        galleryScrollY = window.scrollY;
-        document.getElementById('gallerySection').classList.remove('active');
-        document.getElementById('gallerySection').style.display='none';
-        document.getElementById('messageSection').classList.add('active');
-        document.getElementById('messageSection').style.display='block';
-        loadMessages(true);
-        window.scrollTo(0,0);
-    }
+    function startAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(syncProfileFromServer, 30000); }
+    function stopAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = null; }
+    document.addEventListener('visibilitychange', () => { document.hidden ? stopAutoSync() : (startAutoSync(), syncProfileFromServer()); });
 
-    function backToGallery() {
-        document.getElementById('messageSection').classList.remove('active');
-        document.getElementById('messageSection').style.display='none';
-        document.getElementById('gallerySection').classList.add('active');
-        document.getElementById('gallerySection').style.display='block';
-        setTimeout(() => { window.scrollTo(0, galleryScrollY); }, 50);
-    }
-
-    // 进入小屋
+    // 按钮事件绑定
+    document.getElementById('btnAdminMode').onclick = () => adminMode ? exitAdminMode() : enterAdminMode();
+    document.getElementById('btnAdminModeMsg').onclick = () => adminMode ? exitAdminMode() : enterAdminMode();
     document.getElementById('btnEnter').onclick = () => {
         document.getElementById('heroSection').classList.add('fade-out');
         setTimeout(() => {
@@ -1008,19 +1008,42 @@
             startAutoSync();
         }, 350);
     };
-
     document.getElementById('btnBack').onclick = () => {
         document.getElementById('gallerySection').classList.remove('active');
         document.getElementById('gallerySection').style.display='none';
         document.getElementById('heroSection').style.display='flex';
         document.getElementById('heroSection').classList.remove('fade-out');
     };
-
-    // 个人主页按钮
+    document.getElementById('btnOpenMessages').onclick = () => {
+        galleryScrollY = window.scrollY;
+        document.getElementById('gallerySection').classList.remove('active');
+        document.getElementById('gallerySection').style.display='none';
+        document.getElementById('messageSection').classList.add('active');
+        document.getElementById('messageSection').style.display='block';
+        loadMessages(true);
+        window.scrollTo(0,0);
+    };
+    document.getElementById('btnBackFromMessages').onclick = () => {
+        document.getElementById('messageSection').classList.remove('active');
+        document.getElementById('messageSection').style.display='none';
+        document.getElementById('gallerySection').classList.add('active');
+        document.getElementById('gallerySection').style.display='block';
+        setTimeout(() => { window.scrollTo(0, galleryScrollY); }, 50);
+    };
     document.getElementById('btnOpenProfile').onclick = openProfileModal;
     document.getElementById('btnProfileClose').onclick = closeProfileModal;
+    document.getElementById('btnOpenSubmit').onclick = openSubmitModal;
+    document.getElementById('btnModalClose').onclick = closeSubmitModal;
+    document.getElementById('btnLightboxClose').onclick = closeLightbox;
+    document.getElementById('btnLightboxDownload').onclick = () => { const src = document.getElementById('lightboxImage').src; if(src) window.downloadSingle(src); };
+    document.getElementById('btnOpenAbout').onclick = () => { document.getElementById('aboutModalOverlay').classList.add('active'); document.body.style.overflow='hidden'; };
+    document.getElementById('btnAboutClose').onclick = () => { document.getElementById('aboutModalOverlay').classList.remove('active'); document.body.style.overflow=''; };
+    document.getElementById('btnSelectDownload').onclick = toggleSelectMode;
+    document.getElementById('btnCancelSelect').onclick = cancelSelectMode;
+    document.getElementById('btnDownloadSelected').onclick = downloadSelected;
+    document.getElementById('copyCodeBtn').onclick = copyCode;
 
-    // 弹窗点击遮罩关闭
+    // 弹窗遮罩点击关闭
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.classList.remove('active'); document.body.style.overflow=''; } });
     });
@@ -1054,6 +1077,7 @@
 
     loadSubmissions(true);
     startAutoSync();
+    console.log('鱼丸的小屋 · 版本 2026.08.04-02 已启动');
 </script>
 </body>
 </html>
