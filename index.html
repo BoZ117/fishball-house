@@ -4,216 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
-    <!-- JSZip -->
+    <link rel="manifest" href="/manifest.json">
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <style>
         :root {
-            --bg-cream: #FFF8F0;
-            --bg-warm: #FFF3E6;
-            --accent: #E8945A;
-            --accent-deep: #D47840;
-            --accent-light: #F5C4A1;
-            --text-primary: #3D2B1F;
-            --text-secondary: #6B5544;
-            --text-muted: #9B8575;
-            --white: #FFFFFF;
-            --shadow-sm: 0 1px 3px rgba(61,43,31,0.06);
-            --shadow-md: 0 4px 16px rgba(61,43,31,0.08);
-            --shadow-lg: 0 12px 32px rgba(61,43,31,0.12);
-            --shadow-xl: 0 20px 48px rgba(61,43,31,0.16);
-            --radius-sm: 10px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
-            --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --transition-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --bg-cream: #FFF8F0; --bg-warm: #FFF3E6; --accent: #E8945A; --accent-deep: #D47840;
+            --accent-light: #F5C4A1; --text-primary: #3D2B1F; --text-secondary: #6B5544;
+            --text-muted: #9B8575; --white: #FFFFFF; --shadow-sm: 0 1px 3px rgba(61,43,31,0.06);
+            --shadow-md: 0 4px 16px rgba(61,43,31,0.08); --shadow-lg: 0 12px 32px rgba(61,43,31,0.12);
+            --shadow-xl: 0 20px 48px rgba(61,43,31,0.16); --radius-sm: 10px; --radius-md: 14px;
+            --radius-lg: 20px; --radius-xl: 28px;
+            --transition-smooth: cubic-bezier(0.25,0.46,0.45,0.94);
+            --transition-spring: cubic-bezier(0.175,0.885,0.32,1.275);
         }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; -webkit-tap-highlight-color:transparent; }
+        body { font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',sans-serif; background:var(--bg-cream); color:var(--text-primary); min-height:100vh; overflow-x:hidden; line-height:1.5; -webkit-font-smoothing:antialiased; }
+        .bg-orb { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.25; pointer-events:none; z-index:0; }
+        .bg-orb-1 { width:280px; height:280px; background:radial-gradient(circle, rgba(240,184,160,0.5) 0%,transparent 70%); top:-80px; right:-60px; }
+        .bg-orb-2 { width:240px; height:240px; background:radial-gradient(circle, rgba(245,196,161,0.45) 0%,transparent 70%); bottom:-60px; left:-50px; }
+        .bg-orb-3 { width:200px; height:200px; background:radial-gradient(circle, rgba(232,148,90,0.3) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); }
+        .app-container { position:relative; z-index:1; min-height:100vh; }
+        .char { display:inline-block; opacity:0; transform:translateY(25px); transition:opacity 0.4s, transform 0.4s; }
+        .char.show { opacity:1; transform:translateY(0); }
+        .hero-section { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 20px; text-align:center; transition:opacity 0.5s, transform 0.5s; background:radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6), transparent 50%), radial-gradient(circle at 80% 80%, rgba(240,240,240,0.9), transparent 50%); }
+        .hero-section.fade-out { opacity:0; transform:translateY(-20px); pointer-events:none; }
+        .hero-title { font-family:'Georgia','Noto Serif SC',serif; font-size:clamp(2.4rem,8vw,3.8rem); font-weight:700; letter-spacing:0.06em; color:#111; margin-bottom:8px; position:relative; }
+        .hero-title::after { content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:60px; height:3px; background:var(--accent); border-radius:2px; opacity:0.8; }
+        .hero-subtitle { font-size:clamp(1rem,3vw,1.15rem); color:#222; margin-top:16px; letter-spacing:0.08em; opacity:0; transform:translateY(20px); transition:opacity 0.6s, transform 0.6s; }
+        .hero-subtitle.show { opacity:1; transform:translateY(0); }
+        .hero-image-wrapper { position:relative; margin:32px 0 28px; transition:transform 0.5s var(--transition-spring); }
+        .hero-image-glow { position:absolute; inset:-30px; border-radius:var(--radius-xl); background:radial-gradient(ellipse, rgba(44,44,44,0.1) 0%,transparent 70%); animation:glowPulse 3s infinite; }
+        @keyframes glowPulse { 0%,100%{opacity:0.4; transform:scale(1);} 50%{opacity:0.7; transform:scale(1.04);} }
+        .hero-image-frame { position:relative; z-index:1; width:min(70vw,240px); height:min(70vw,240px); border-radius:50%; overflow:hidden; box-shadow:0 15px 35px rgba(0,0,0,0.1), 0 0 0 4px rgba(44,44,44,0.15); background:#e0e0e0; display:flex; align-items:center; justify-content:center; }
+        .hero-image-frame img { width:100%; height:100%; object-fit:cover; }
+        .hero-stats { display:flex; gap:28px; margin-top:24px; font-size:1rem; color:#fff; background:rgba(20,20,20,0.8); backdrop-filter:blur(16px); padding:14px 32px; border-radius:40px; box-shadow:var(--shadow-lg); }
+        .hero-stats strong { color:var(--accent); font-size:1.3rem; }
+        .btn-enter { display:inline-flex; align-items:center; gap:8px; padding:15px 38px; font-size:1.05rem; font-weight:600; letter-spacing:0.06em; color:#fff; background:linear-gradient(135deg,#2c2c2c,#1a1a1a); border:none; border-radius:50px; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,0.25); transition:all 0.4s var(--transition-spring); margin-top:16px; }
+        .btn-enter:hover { transform:translateY(-3px); }
+        .gallery-section { display:none; min-height:100vh; padding:0 0 40px; background:var(--bg-cream); padding-top:80px; }
+        .gallery-section.active { display:block; animation:fadeInUp 0.5s forwards; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .gallery-nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:12px 18px; background:rgba(255,248,240,0.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.6); box-shadow:var(--shadow-md); }
+        .gallery-nav-title { font-family:'Georgia',serif; font-size:1.2rem; font-weight:700; white-space:nowrap; color:var(--text-primary); }
+        .gallery-nav-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .stats-bar { display:flex; justify-content:flex-start; gap:32px; padding:18px 24px; margin:12px 12px 20px; background:rgba(18,18,18,0.85); backdrop-filter:blur(20px); border-radius:16px; color:#e0e0e0; font-size:1.05rem; }
+        .stats-bar strong { color:#c8a27a; font-size:1.5rem; }
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; font-size:0.85rem; font-weight:500; border:none; border-radius:50px; cursor:pointer; transition:all 0.3s var(--transition-spring); white-space:nowrap; background:transparent; }
+        .btn-outline { border:1.5px solid var(--accent-light); color:var(--accent-deep); }
+        .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff; }
+        .btn-back { color:var(--text-secondary); }
+        .btn-admin { background:var(--accent-deep); color:#fff; }
+        .btn-profile { background:#6B5544; color:#fff; }
+        .btn-select-download { background:var(--accent-deep); color:#fff; }
+        .btn-cancel-select { background:#aaa; color:#fff; }
+        .btn-danger { background:#c0392b; color:#fff; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
-            background: var(--bg-cream);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
+        .gallery-grid {
+            column-gap: 10px;
+            padding: 0 8px;
+            margin: 0 auto;
         }
-
-        .bg-orb {
-            position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; pointer-events: none; z-index: 0;
-        }
-        .bg-orb-1 { width: 280px; height: 280px; background: radial-gradient(circle, rgba(240,184,160,0.5) 0%, transparent 70%); top: -80px; right: -60px; }
-        .bg-orb-2 { width: 240px; height: 240px; background: radial-gradient(circle, rgba(245,196,161,0.45) 0%, transparent 70%); bottom: -60px; left: -50px; }
-        .bg-orb-3 { width: 200px; height: 200px; background: radial-gradient(circle, rgba(232,148,90,0.3) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); }
-
-        .app-container { position: relative; z-index: 1; min-height: 100vh; }
-
-        .char { display: inline-block; opacity: 0; transform: translateY(25px); transition: opacity 0.4s ease, transform 0.4s ease; }
-        .char.show { opacity: 1; transform: translateY(0); }
-
-        .hero-section {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 40px 20px; text-align: center;
-            transition: opacity 0.5s, transform 0.5s;
-            background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6), transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(240,240,240,0.9), transparent 50%);
-        }
-        .hero-section.fade-out { opacity: 0; transform: translateY(-20px); pointer-events: none; }
-        .hero-title {
-            font-family: 'Georgia', 'Noto Serif SC', serif;
-            font-size: clamp(2.4rem, 8vw, 3.8rem); font-weight: 700; letter-spacing: 0.06em; position: relative;
-            color: #111; margin-bottom: 8px;
-        }
-        .hero-title::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            width: 60px; height: 3px; background: var(--accent); border-radius: 2px; opacity: 0.8;
-        }
-        .hero-subtitle {
-            font-size: clamp(1rem, 3vw, 1.15rem); color: #222;
-            margin-top: 16px; letter-spacing: 0.08em; font-weight: 400;
-            opacity: 0; transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .hero-subtitle.show { opacity: 1; transform: translateY(0); }
-
-        .hero-image-wrapper { position: relative; margin: 32px 0 28px; transition: transform 0.5s var(--transition-spring); }
-        .hero-image-glow {
-            position: absolute; inset: -30px; border-radius: var(--radius-xl);
-            background: radial-gradient(ellipse at center, rgba(44,44,44,0.1) 0%, transparent 70%);
-            z-index: 0; animation: glowPulse 3s ease-in-out infinite; pointer-events: none;
-        }
-        @keyframes glowPulse { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.04); } }
-        .hero-image-frame {
-            position: relative; z-index: 1; width: min(70vw, 240px); height: min(70vw, 240px);
-            border-radius: 50%; overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 0 0 4px rgba(44,44,44,0.15);
-            background: #e0e0e0; display: flex; align-items: center; justify-content: center;
-        }
-        .hero-image-frame img { width: 100%; height: 100%; object-fit: cover; }
-
-        .hero-stats {
-            display: flex; gap: 28px; margin-top: 24px; font-size: 1rem;
-            color: #fff; font-weight: 500;
-            background: rgba(20,20,20,0.8); backdrop-filter: blur(16px);
-            padding: 14px 32px; border-radius: 40px; box-shadow: var(--shadow-lg);
-        }
-        .hero-stats span { display: flex; align-items: center; gap: 6px; }
-        .hero-stats strong { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
-
-        .btn-enter {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 15px 38px; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.06em;
-            color: #fff; background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
-            border: none; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-            transition: all 0.4s var(--transition-spring);
-            margin-top: 16px; -webkit-tap-highlight-color: transparent;
-        }
-        .btn-enter:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.35); }
-        .btn-enter:active { transform: scale(0.96); }
-
-        .gallery-section {
-            display: none; min-height: 100vh; padding: 0 0 40px;
-            animation: fadeInUp 0.5s forwards;
-            background: var(--bg-cream);
-            padding-top: 80px;
-        }
-        .gallery-section.active { display: block; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .gallery-nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-            padding: 12px 18px;
-            background: rgba(255,248,240,0.95); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.6);
-            box-shadow: var(--shadow-md);
-            border-radius: 0;
-        }
-        .gallery-nav-title { font-family: 'Georgia', serif; font-size: 1.2rem; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
-        .gallery-nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        .stats-bar {
-            display: flex; justify-content: flex-start; align-items: center;
-            gap: 32px; padding: 18px 24px; margin: 12px 12px 20px;
-            background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(20px);
-            border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            color: #e0e0e0; font-size: 1.05rem; font-weight: 500; letter-spacing: 0.02em;
-        }
-        .stats-bar strong { color: #c8a27a; font-size: 1.5rem; font-weight: 700; margin: 0 4px; }
-
-        .btn {
-            display: inline-flex; align-items: center; gap: 5px; padding: 8px 18px;
-            font-size: 0.85rem; font-weight: 500; border: none; border-radius: 50px;
-            cursor: pointer; transition: all 0.3s var(--transition-spring);
-            white-space: nowrap; background: transparent; -webkit-tap-highlight-color: transparent;
-        }
-        .btn-outline { border: 1.5px solid var(--accent-light); color: var(--accent-deep); }
-        .btn-outline:hover { background: rgba(232,148,90,0.08); }
-        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; box-shadow: 0 4px 12px rgba(212,120,64,0.2); }
-        .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
-        .btn-back { color: var(--text-secondary); padding: 8px 14px; }
-        .btn-admin { background: var(--accent-deep); color: #fff; }
-        .btn-profile { background: #6B5544; color: #fff; }
-        .btn-select-download { background: var(--accent-deep); color: #fff; }
-        .btn-cancel-select { background: #aaa; color: #fff; }
-
-        .gallery-grid { column-count: 5; column-gap: 10px; padding: 0 8px; width: 100%; }
-        .image-card { break-inside: avoid; margin-bottom: 10px; position: relative; border-radius: var(--radius-md); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.3s var(--transition-smooth); }
-        .image-card:active { transform: scale(0.97); }
-        .image-card-inner { position: relative; background: var(--bg-warm); border-radius: var(--radius-md) var(--radius-md) 0 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .image-card-inner img { width: 100%; height: auto; object-fit: contain; transition: transform 0.5s; display: block; }
-        .image-card:hover .image-card-inner img { transform: scale(1.03); }
-
-        .image-time-overlay {
-            position: absolute; bottom: 0; right: 0;
-            padding: 4px 10px; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
-            color: #fff; font-size: 0.7rem; border-top-left-radius: 8px;
-            opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap;
-        }
-        .image-card:hover .image-time-overlay { opacity: 1; }
-
-        .image-card-info {
-            padding: 8px 12px 10px; display: flex; flex-direction: column;
-            background: var(--white); border-radius: 0 0 var(--radius-md) var(--radius-md);
-        }
-        .image-card-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; min-height: 1.2em; }
-        .image-card-author { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-        .my-tag {
+        .image-card {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            cursor: pointer;
             display: inline-block;
-            background: var(--accent-light);
-            color: var(--accent-deep);
-            font-size: 0.6rem;
-            padding: 1px 6px;
-            border-radius: 10px;
-            margin-left: 4px;
-            font-weight: 600;
-            vertical-align: middle;
+            width: 100%;
+            position: relative;
         }
-        .badge-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-        .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-        .badge-preset { background: #FFF3E6; color: #C07840; }
-        .badge-submission { background: #FFF0ED; color: #D47860; }
-
-        .image-card-actions {
-            display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f0e8e0;
-        }
-        .card-action-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            min-width: 36px; min-height: 36px; border: none; border-radius: 50%;
-            cursor: pointer; font-size: 1rem; transition: all 0.2s;
-            background: rgba(232,148,90,0.1); color: var(--accent-deep);
-            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-            position: relative; z-index: 10; pointer-events: auto;
-        }
-        .card-action-btn:active { transform: scale(0.9); background: rgba(232,148,90,0.25); }
-        .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
-        .card-action-btn.delete-btn:active { background: rgba(192,57,43,0.2); }
-
+        .image-card:active { transform:scale(0.97); }
+        .image-card-inner { position:relative; background:var(--bg-warm); display:flex; align-items:center; justify-content:center; }
+        .image-card-inner img { width:100%; height:auto; object-fit:contain; transition:transform 0.5s; display:block; }
+        .image-card:hover .image-card-inner img { transform:scale(1.03); }
+        .image-time-overlay { position:absolute; bottom:0; right:0; padding:4px 10px; background:rgba(0,0,0,0.55); color:#fff; font-size:0.7rem; border-top-left-radius:8px; opacity:0; transition:0.3s; }
+        .image-card:hover .image-time-overlay { opacity:1; }
+        .image-card-info { padding:8px 12px 10px; background:var(--white); }
+        .image-card-title { font-size:0.8rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .image-card-author { font-size:0.68rem; color:var(--text-muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .my-tag { display:inline-block; background:var(--accent-light); color:var(--accent-deep); font-size:0.6rem; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:600; }
+        .badge-row { display:flex; align-items:center; justify-content:space-between; margin-top:4px; }
+        .badge { font-size:0.6rem; padding:2px 8px; border-radius:20px; }
+        .badge-preset { background:#FFF3E6; color:#C07840; }
+        .badge-submission { background:#FFF0ED; color:#D47860; }
+        .image-card-actions { display:flex; justify-content:flex-end; gap:6px; margin-top:6px; padding-top:6px; border-top:1px solid #f0e8e0; }
+        .card-action-btn { display:inline-flex; align-items:center; justify-content:center; min-width:36px; min-height:36px; border:none; border-radius:50%; cursor:pointer; font-size:1rem; background:rgba(232,148,90,0.1); color:var(--accent-deep); transition:0.2s; }
+        .card-action-btn:active { transform:scale(0.9); background:rgba(232,148,90,0.25); }
+        .card-action-btn.delete-btn { color:#c0392b; background:rgba(192,57,43,0.08); }
         .select-checkbox {
             position: absolute;
             top: 8px;
@@ -224,162 +107,184 @@
             accent-color: var(--accent-deep);
             transform: scale(1.3);
             display: none;
-            pointer-events: none;
         }
-        .select-mode .select-checkbox { display: block; }
-        .select-mode .image-card { cursor: default; }
+        .select-mode .select-checkbox {
+            display: block !important;
+        }
+        .select-mode .image-card {
+            cursor: default;
+        }
 
-        .more-box { margin: 30px 12px 10px; padding: 32px 28px; background: rgba(18, 18, 18, 0.9); backdrop-filter: blur(20px); border-radius: 20px; color: #eee; text-align: left; }
-        .more-title { font-family: 'Georgia', serif; font-size: 1.8rem; font-weight: 700; color: #c8a27a; margin-bottom: 20px; }
-        .more-links { display: flex; justify-content: flex-start; gap: 32px; flex-wrap: wrap; }
-        .more-links .more-link { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 28px; border-radius: 50px; font-size: 1rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .more-links .more-link:hover { background: rgba(255,255,255,0.2); border-color: #c8a27a; color: #c8a27a; }
+        .more-box { margin:30px 12px; padding:32px 28px; background:rgba(18,18,18,0.9); backdrop-filter:blur(20px); border-radius:20px; color:#eee; }
+        .more-title { font-family:'Georgia',serif; font-size:1.8rem; font-weight:700; color:#c8a27a; margin-bottom:20px; }
+        .more-links { display:flex; gap:32px; flex-wrap:wrap; }
+        .more-link { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:12px 28px; border-radius:50px; font-size:1rem; cursor:pointer; transition:0.3s; display:flex; align-items:center; gap:8px; }
+        .message-section { display:none; min-height:100vh; padding:0 16px 40px; background:var(--bg-cream); padding-top:80px; }
+        .message-section.active { display:block; }
+        .message-container { max-width:700px; margin:80px auto 40px; background:var(--white); border-radius:20px; padding:28px 24px; box-shadow:var(--shadow-md); }
+        .message-list { max-height:50vh; overflow-y:auto; margin-bottom:24px; }
+        .message-item { padding:14px 16px; border-bottom:1px solid #f0e8e0; position:relative; }
+        .message-item .msg-author { font-weight:600; color:var(--accent-deep); }
+        .message-item .msg-text { color:var(--text-secondary); font-size:0.95rem; }
+        .message-item .msg-time { font-size:0.7rem; color:var(--text-muted); margin-top:6px; }
+        .message-item .msg-delete { position:absolute; top:8px; right:12px; font-size:0.8rem; color:#c0392b; cursor:pointer; background:none; border:none; opacity:0.6; }
+        .message-item .msg-admin-delete { color:#fff; background:#c0392b; border-radius:4px; padding:2px 8px; }
+        .message-form { display:flex; flex-direction:column; gap:12px; }
+        .message-form textarea { width:100%; padding:12px 14px; border:1.5px solid #E8DDD4; border-radius:var(--radius-sm); background:var(--bg-cream); resize:vertical; min-height:80px; }
 
-        .message-section { display: none; min-height: 100vh; padding: 0 16px 40px; background: var(--bg-cream); animation: fadeInUp 0.5s forwards; padding-top: 80px; }
-        .message-section.active { display: block; }
-        .message-container { max-width: 700px; margin: 80px auto 40px; background: var(--white); border-radius: 20px; padding: 28px 24px; box-shadow: var(--shadow-md); }
-        .message-list { max-height: 50vh; overflow-y: auto; margin-bottom: 24px; }
-        .message-item { padding: 14px 16px; border-bottom: 1px solid #f0e8e0; position: relative; }
-        .message-item .msg-author { font-weight: 600; color: var(--accent-deep); margin-bottom: 4px; }
-        .message-item .msg-text { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
-        .message-item .msg-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; }
-        .message-item .msg-delete { position: absolute; top: 8px; right: 12px; font-size: 0.8rem; color: #c0392b; cursor: pointer; background: none; border: none; opacity: 0.6; transition: 0.2s; }
-        .message-item .msg-delete:hover { opacity: 1; }
-        .message-item .msg-admin-delete { color: #fff; background: #c0392b; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: bold; }
-        .message-form { display: flex; flex-direction: column; gap: 12px; }
-        .message-form textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #E8DDD4; border-radius: var(--radius-sm); font-size: 0.9rem; background: var(--bg-cream); outline: none; resize: vertical; min-height: 80px; }
-        .message-form .form-row { display: flex; align-items: center; gap: 12px; }
-        .message-form .anonymous-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); }
-        .message-form button { align-self: flex-end; padding: 10px 28px; }
-
-        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(61,43,31,0.5); backdrop-filter: blur(6px); display: flex; align-items: flex-end; justify-content: center; padding: 0; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-dialog { background: #fff; border-radius: 20px 20px 0 0; padding: 28px 20px 24px; width: 100%; max-width: 500px; box-shadow: var(--shadow-xl); transform: translateY(30px); transition: transform 0.35s var(--transition-spring); max-height: 85vh; overflow-y: auto; }
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(61,43,31,0.5); backdrop-filter: blur(6px);
+            display: none;
+            align-items: flex-end; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-dialog {
+            background: #fff; border-radius: 20px 20px 0 0;
+            padding: 28px 24px 40px; width: 100%; max-width: 500px;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(30px);
+            transition: transform 0.35s var(--transition-spring);
+            max-height: 85vh; overflow-y: auto;
+            margin-bottom: env(safe-area-inset-bottom, 20px);
+        }
         .modal-overlay.active .modal-dialog { transform: translateY(0); }
-        .modal-close { position: absolute; top: 12px; right: 16px; background: rgba(0,0,0,0.04); border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
-        .form-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E8DDD4; border-radius: var(--radius-sm); font-size: 0.9rem; background: var(--bg-cream); transition: 0.3s; outline: none; }
-        .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,148,90,0.1); background: #fff; }
-        .file-upload-area { border: 2px dashed #E8DDD4; border-radius: var(--radius-md); padding: 24px 16px; text-align: center; cursor: pointer; transition: 0.3s; background: var(--bg-cream); }
-        .file-upload-area:active, .file-upload-area.dragover { border-color: var(--accent-light); background: #FFF9F4; }
-        .file-upload-area input[type="file"] { display: none; }
-        .file-upload-icon { font-size: 2rem; display: block; margin-bottom: 6px; }
-        .file-upload-text { font-size: 0.85rem; color: var(--text-muted); }
-        .file-list { margin-top: 12px; max-height: 150px; overflow-y: auto; background: #FFFBF7; border-radius: 8px; padding: 8px 12px; display: none; text-align: left; }
-        .file-list.has-files { display: block; }
-        .file-list-item { font-size: 0.78rem; color: var(--text-secondary); padding: 4px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; }
-        .file-preview { width: 100%; max-height: 140px; object-fit: contain; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
-        .form-submit { width: 100%; padding: 13px; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; border: none; border-radius: 50px; cursor: pointer; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); box-shadow: 0 4px 12px rgba(212,120,64,0.2); transition: 0.3s; margin-top: 6px; }
-        .form-submit:active { transform: scale(0.97); }
+        .modal-close { position:absolute; top:12px; right:16px; background:rgba(0,0,0,0.04); border:none; border-radius:50%; width:34px; height:34px; font-size:1.1rem; cursor:pointer; }
 
-        .lightbox-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(30,20,14,0.95); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s; cursor: pointer; }
-        .lightbox-overlay.active { opacity: 1; pointer-events: auto; }
-        .lightbox-content { position: relative; max-width: 95vw; max-height: 85vh; transform: scale(0.9); transition: 0.3s; }
-        .lightbox-overlay.active .lightbox-content { transform: scale(1); }
+        .lightbox-overlay {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(30,20,14,0.95); backdrop-filter: blur(12px);
+            display: none;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .lightbox-overlay.active {
+            display: flex;
+        }
+        .lightbox-content { position: relative; max-width: 95vw; max-height: 85vh; }
         .lightbox-content img { max-width: 95vw; max-height: 75vh; object-fit: contain; border-radius: 12px; }
-        .lightbox-close { position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 36px; height: 36px; font-size: 1.1rem; color: #fff; cursor: pointer; transition: 0.3s; }
-        .lightbox-download { padding: 10px 24px; font-size: 0.9rem; font-weight: 600; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; cursor: pointer; transition: 0.3s; backdrop-filter: blur(8px); }
+        .lightbox-close { position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 36px; height: 36px; font-size: 1.1rem; color: #fff; cursor: pointer; }
+        .lightbox-download { padding: 10px 24px; font-size: 0.9rem; font-weight: 600; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; cursor: pointer; }
 
-        .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 3000; }
-        .toast { padding: 10px 22px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; color: #fff; background: rgba(61,43,31,0.9); backdrop-filter: blur(12px); box-shadow: var(--shadow-lg); margin-top: 6px; animation: toastIn 0.3s forwards, toastOut 0.3s 2s forwards; }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+        .form-group { margin-bottom:16px; }
+        .form-label { display:block; font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:5px; }
+        .form-input { width:100%; padding:12px 14px; border:1.5px solid #E8DDD4; border-radius:var(--radius-sm); background:var(--bg-cream); }
+        .file-upload-area { border:2px dashed #E8DDD4; border-radius:var(--radius-md); padding:24px 16px; text-align:center; cursor:pointer; transition:0.3s; background:var(--bg-cream); }
+        .file-upload-area:active, .file-upload-area.dragover { border-color:var(--accent-light); background:#FFF9F4; }
+        .file-upload-area input[type="file"] { display:none; }
+        .toast-container { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:3000; }
+        .toast { padding:10px 22px; border-radius:50px; font-size:0.85rem; color:#fff; background:rgba(61,43,31,0.9); backdrop-filter:blur(12px); margin-top:6px; animation:toastIn 0.3s forwards, toastOut 0.3s 2s forwards; }
+        @keyframes toastIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+        @keyframes toastOut { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-15px);} }
+        .profile-avatar { width:60px; height:60px; background:var(--accent-light); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 16px; color:#fff; }
+        .profile-stats { text-align:center; margin-bottom:18px; }
+        .verification-group { margin-top:12px; padding:12px; background:#FFF9F4; border-radius:8px; border:1px dashed var(--accent-light); }
+        .load-more { text-align:center; padding:20px; color:var(--text-muted); cursor:pointer; }
 
-        .profile-avatar { width: 60px; height: 60px; background: var(--accent-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px; color: #fff; }
-        .profile-stats { text-align: center; margin-bottom: 18px; color: var(--text-secondary); font-size: 0.9rem; }
-        .profile-stats strong { color: var(--accent-deep); }
-        .profile-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; text-align: center; }
-        .verification-group { margin-top: 12px; padding: 12px; background: #FFF9F4; border-radius: 8px; border: 1px dashed var(--accent-light); }
-        .load-more { text-align: center; padding: 20px; color: var(--text-muted); cursor: pointer; }
+        /* 强化提交按钮样式，防止被覆盖 */
+        .form-submit {
+            display: block !important;
+            width: 100% !important;
+            padding: 13px 0 !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.04em !important;
+            border: none !important;
+            border-radius: 50px !important;
+            cursor: pointer !important;
+            color: #fff !important;
+            background: linear-gradient(135deg, var(--accent), var(--accent-deep)) !important;
+            box-shadow: 0 4px 12px rgba(212,120,64,0.2) !important;
+            transition: all 0.3s !important;
+            margin-top: 6px !important;
+            text-align: center !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+        }
+        .form-submit:active {
+            transform: scale(0.97) !important;
+            opacity: 0.9 !important;
+        }
 
         @media (min-width: 1200px) { .gallery-grid { column-count: 5; } }
-        @media (max-width: 1199px) and (min-width: 768px) { .gallery-grid { column-count: 3; column-gap: 10px; } }
+        @media (max-width: 1199px) and (min-width: 768px) { .gallery-grid { column-count: 3; } }
         @media (max-width: 767px) {
             .gallery-grid { column-count: 2; column-gap: 8px; padding: 0 4px; }
-            .image-card { margin-bottom: 8px; }
-            .gallery-nav { flex-direction: column; align-items: flex-start; padding: 10px 14px; }
-            .gallery-nav-actions { width: 100%; flex-wrap: nowrap; justify-content: space-between; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .btn { padding: 5px 8px; font-size: 0.7rem; white-space: nowrap; flex-shrink: 0; }
-            .stats-bar { margin: 8px 8px 14px; gap: 16px; font-size: 0.9rem; padding: 14px 18px; }
-            .hero-stats { flex-direction: column; gap: 8px; padding: 10px 20px; }
-            .hero-title { font-size: 2rem; }
-            .hero-image-frame { width: 55vw; height: 55vw; }
-            .more-links { flex-direction: column; gap: 14px; }
-            .gallery-section { padding-top: 150px !important; }
-            .message-section { padding-top: 150px !important; }
+            .gallery-nav { flex-direction:column; align-items:flex-start; }
+            .gallery-nav-actions { width:100%; overflow-x:auto; }
+            .btn { padding:5px 8px; font-size:0.7rem; }
+            .stats-bar { margin:8px; gap:16px; font-size:0.9rem; }
+            .gallery-section { padding-top:130px !important; }
+            .message-section { padding-top:130px !important; }
         }
     </style>
 </head>
 <body>
-
-<div class="bg-orb bg-orb-1"></div>
-<div class="bg-orb bg-orb-2"></div>
-<div class="bg-orb bg-orb-3"></div>
-
+<div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div><div class="bg-orb bg-orb-3"></div>
 <div class="app-container">
     <section class="hero-section" id="heroSection">
         <h1 class="hero-title" id="heroTitle">鱼丸的小屋</h1>
         <p class="hero-subtitle" id="heroSubtitle">✨ 温馨 · 分享 · 珍藏 ✨</p>
         <div class="hero-image-wrapper">
             <div class="hero-image-glow"></div>
-            <div class="hero-image-frame" id="heroImageFrame">
-                <img src="./1.jpg" alt="杀生鱼丸" style="width:100%;height:100%;object-fit:cover;">
+            <div class="hero-image-frame">
+                <img src="./1.jpg" alt="杀生鱼丸" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=color:#6B5544;font-weight:bold;>🐱 鱼丸的小屋</div>'">
             </div>
         </div>
-        <div class="hero-stats" id="heroStats">
+        <div class="hero-stats">
             <span>📸 <strong id="heroTotalImages">0</strong> 张图片</span>
             <span>👥 <strong id="heroTotalAuthors">0</strong> 位投稿人</span>
         </div>
-        <button class="btn-enter" id="btnEnter">进入小屋 <span>→</span></button>
+        <button class="btn-enter" id="btnEnter">进入小屋 →</button>
     </section>
 
     <section class="gallery-section" id="gallerySection">
         <nav class="gallery-nav">
             <button class="btn btn-back" id="btnBack">← 返回</button>
             <span class="gallery-nav-title">🏠 鱼丸的小屋</span>
-            <div class="gallery-nav-actions" id="galleryNavActions">
+            <div class="gallery-nav-actions">
                 <button class="btn btn-profile" id="btnOpenProfile">👤 我的</button>
-                <button class="btn btn-outline" id="btnOpenSubmit">💌 投稿</button>
+                <!-- 内联onclick绑定投稿按钮 -->
+                <button class="btn btn-outline" id="btnOpenSubmit" onclick="openSubmitModal()">💌 投稿</button>
                 <button class="btn btn-primary" id="btnSelectDownload" onclick="toggleSelectMode()">📦 多选下载</button>
                 <button class="btn btn-cancel-select" id="btnCancelSelect" onclick="cancelSelectMode()" style="display:none;">取消</button>
                 <button class="btn btn-select-download" id="btnDownloadSelected" onclick="downloadSelected()" style="display:none;">下载选中 (0)</button>
-                <button class="btn btn-admin" id="btnAdminMode">🔑 管理</button>
+                <button class="btn btn-admin" id="btnAdminMode" onclick="toggleAdminMode()">🔑 管理</button>
             </div>
         </nav>
-        <div class="stats-bar" id="galleryStats">
+        <div class="stats-bar">
             <span>📸 <strong id="galleryTotalImages">0</strong> 张图片</span>
             <span>👥 <strong id="galleryTotalAuthors">0</strong> 位投稿人</span>
             <span>💬 <strong id="galleryTotalMessages">0</strong> 条留言</span>
         </div>
         <div class="gallery-grid" id="galleryGrid"></div>
-        <div id="loadMoreTrigger" class="load-more">下拉加载更多...</div>
+        <div id="loadMoreTrigger" class="load-more">加载更多...</div>
         <div class="more-box">
             <div class="more-title">更 多</div>
             <div class="more-links">
-                <button class="more-link" id="btnOpenMessages">💬 留言板（写与鱼丸的故事）</button>
-                <button class="more-link" id="btnOpenAbout">ℹ️ 关于</button>
+                <button class="more-link" id="btnOpenMessages" onclick="goToMessages()">💬 留言板（写与鱼丸的故事）</button>
+                <button class="more-link" id="btnOpenAbout" onclick="document.getElementById('aboutModalOverlay').classList.add('active'); document.body.style.overflow='hidden';">ℹ️ 关于</button>
             </div>
         </div>
     </section>
 
     <section class="message-section" id="messageSection">
         <nav class="gallery-nav">
-            <button class="btn btn-back" id="btnBackFromMessages">← 返回小屋</button>
+            <button class="btn btn-back" id="btnBackFromMessages" onclick="backToGallery()">← 返回小屋</button>
             <span class="gallery-nav-title">💬 留言板 · 与鱼丸的故事</span>
-            <div class="gallery-nav-actions">
-                <button class="btn btn-admin" id="btnAdminModeMsg">🔑 管理</button>
-            </div>
+            <button class="btn btn-admin" id="btnAdminModeMsg" onclick="toggleAdminMode()">🔑 管理</button>
         </nav>
         <div class="message-container">
             <div class="message-list" id="messageList"></div>
-            <div id="msgLoadMore" class="load-more" style="display:none;">加载更多...</div>
-            <form id="messageForm" class="message-form">
+            <div id="msgLoadMore" class="load-more" style="display:none;"></div>
+            <form id="messageForm" class="message-form" onsubmit="handleMessageSubmit(event)">
                 <textarea id="msgContent" placeholder="写下你与鱼丸的故事..." maxlength="500" required></textarea>
                 <div class="form-row">
-                    <label class="anonymous-check">
-                        <input type="checkbox" id="msgAnonymous"> 匿名发布（不显示昵称）
-                    </label>
+                    <label class="anonymous-check"><input type="checkbox" id="msgAnonymous"> 匿名发布（不显示昵称）</label>
                 </div>
                 <button type="submit" class="btn btn-primary">提交留言</button>
             </form>
@@ -389,28 +294,27 @@
 
 <!-- 投稿弹窗 -->
 <div class="modal-overlay" id="submitModalOverlay">
-    <div class="modal-dialog">
-        <button class="modal-close" id="btnModalClose">✕</button>
-        <h2 style="text-align:center; font-family:'Georgia',serif; margin-bottom:20px;">📸 批量投稿</h2>
-        <form id="submitForm" novalidate>
+    <div class="modal-dialog" style="max-width:500px;">
+        <button class="modal-close" id="btnModalClose" onclick="closeSubmitModal()">✕</button>
+        <h2 style="text-align:center; margin-bottom:20px;">📸 批量投稿</h2>
+        <form id="submitForm" onsubmit="handleSubmitForm(event)">
             <div class="form-group">
                 <label class="form-label">图片标题（可留空）</label>
-                <input type="text" class="form-input" id="inputTitle" placeholder="可不填，标题默认为空" maxlength="15">
+                <input type="text" class="form-input" id="inputTitle" maxlength="15" placeholder="可不填，标题默认为空">
             </div>
             <div class="form-group">
                 <label class="form-label">选择图片（可多选，可拖拽叠加）</label>
                 <div class="file-upload-area" id="fileUploadArea">
                     <input type="file" id="inputFile" accept="image/*" multiple>
-                    <div class="file-upload-placeholder">
-                        <span class="file-upload-icon">🖼️</span>
-                        <span class="file-upload-text">点击或拖拽图片</span>
-                        <span style="display:block;font-size:0.7rem;color:#888;">JPG/PNG/WebP，≤10MB</span>
-                    </div>
-                    <img class="file-preview" id="filePreview" alt="预览">
+                    <span class="file-upload-icon">🖼️</span>
+                    <span class="file-upload-text">点击或拖拽图片</span>
+                    <span style="display:block;font-size:0.7rem;color:#888;">JPG/PNG/WebP，≤10MB</span>
+                    <img class="file-preview" id="filePreview">
                 </div>
                 <div class="file-list" id="fileList"></div>
             </div>
             <button type="submit" class="form-submit" id="btnSubmitForm">✨ 提交投稿</button>
+            <button type="button" class="form-submit" id="retryFailedBtn" style="display:none; background:#c0392b;" onclick="retryUpload()">重试失败文件</button>
         </form>
     </div>
 </div>
@@ -418,38 +322,34 @@
 <!-- 个人主页弹窗 -->
 <div class="modal-overlay" id="profileModalOverlay">
     <div class="modal-dialog">
-        <button class="modal-close" id="btnProfileClose">✕</button>
+        <button class="modal-close" id="btnProfileClose" onclick="closeProfileModal()">✕</button>
         <div class="profile-avatar">👤</div>
-        <h2 style="text-align:center; font-family:'Georgia',serif; margin-bottom:20px;">个人主页</h2>
+        <h2 style="text-align:center;">个人主页</h2>
         <div class="profile-stats">
             <span>📸 我的投稿：<strong id="profileSubmissions">0</strong> 张</span><br>
             <span>💬 我的留言：<strong id="profileMessages">0</strong> 条</span>
         </div>
-        <form id="profileForm" novalidate>
+        <form id="profileForm" onsubmit="handleProfileSubmit(event)">
+            <div class="form-group"><label class="form-label">你的昵称</label><input class="form-input" id="profileAuthor" maxlength="10" placeholder="输入昵称" required></div>
             <div class="form-group">
-                <label class="form-label">你的昵称</label>
-                <input type="text" class="form-input" id="profileAuthor" placeholder="输入昵称" maxlength="10" required>
-            </div>
-            <div id="codeSection">
-                <div class="form-group" id="codeInputGroup">
-                    <label class="form-label">专属码</label>
-                    <input type="text" class="form-input" id="profileCode" placeholder="输入已有专属码或自动生成" maxlength="20">
-                    <span class="profile-hint" id="codeHint">换设备时输入此码可同步身份</span>
-                </div>
+                <label class="form-label">专属码</label>
+                <input class="form-input" id="profileCode" maxlength="20" placeholder="输入已有专属码或自动生成">
+                <span class="profile-hint" id="codeHint">换设备时输入此码可同步身份，修改后历史数据自动迁移</span>
+                <button type="button" class="btn btn-outline" id="copyCodeBtn" style="display:none; margin-top:8px;" onclick="copyCode()">📋 复制专属码</button>
             </div>
             <div id="verificationArea" style="display:none;" class="verification-group">
-                <p style="font-size:0.8rem; color: #c0392b;">⚠️ 该昵称已被注册，请输入专属码验证</p>
-                <input type="text" class="form-input" id="verifyCode" placeholder="请输入专属码" maxlength="20">
+                <p style="font-size:0.8rem;color:#c0392b;">⚠️ 该昵称已被注册，请输入您的专属码以验证身份</p>
+                <input class="form-input" id="verifyCode" placeholder="请输入专属码">
             </div>
-            <button type="submit" class="form-submit" id="btnSaveProfile">💾 保存信息</button>
+            <button type="submit" class="form-submit">💾 保存信息</button>
         </form>
     </div>
 </div>
 
 <!-- 关于弹窗 -->
 <div class="modal-overlay" id="aboutModalOverlay">
-    <div class="modal-dialog">
-        <button class="modal-close" id="btnAboutClose">✕</button>
+    <div class="modal-dialog about-modal">
+        <button class="modal-close" id="btnAboutClose" onclick="document.getElementById('aboutModalOverlay').classList.remove('active'); document.body.style.overflow='';">✕</button>
         <h2 style="font-family:'Georgia',serif; margin-bottom:16px;">关于鱼丸的小屋</h2>
         <p><strong>创立年份：</strong>2026</p>
         <p>传递温暖，分享回忆</p>
@@ -458,219 +358,305 @@
     </div>
 </div>
 
-<!-- 灯箱 -->
-<div class="lightbox-overlay" id="lightboxOverlay">
-    <div class="lightbox-content">
-        <button class="lightbox-close" id="btnLightboxClose">✕</button>
-        <img id="lightboxImage" src="" alt="预览">
-        <button class="lightbox-download" id="btnLightboxDownload">⬇ 下载这张图</button>
+<!-- 自定义确认弹窗 -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-dialog">
+        <h3 id="confirmTitle">确认</h3>
+        <p id="confirmMessage"></p>
+        <div class="form-group" id="confirmPasswordGroup" style="display:none;">
+            <label class="form-label">管理员密码</label>
+            <input type="password" class="form-input" id="confirmPasswordInput" placeholder="请输入管理密码">
+        </div>
+        <div class="form-group" id="copySection" style="display:none;">
+            <label class="form-label">您的专属码（请务必保存）</label>
+            <div style="display:flex; gap:8px;">
+                <input class="form-input" id="copyCodeInput" readonly>
+                <button class="btn btn-primary" id="copyConfirmBtn" onclick="copyCodeFromConfirm()">📋 复制</button>
+            </div>
+        </div>
+        <div class="confirm-buttons" style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-outline" id="confirmCancel">取消</button>
+            <button class="btn btn-danger" id="confirmOk">确认</button>
+        </div>
     </div>
 </div>
 
+<!-- 灯箱 -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+    <div class="lightbox-content">
+        <button class="lightbox-close" id="btnLightboxClose" onclick="closeLightbox()">✕</button>
+        <img id="lightboxImage" src="" alt="预览">
+        <button class="lightbox-download" id="btnLightboxDownload" onclick="downloadCurrent()">⬇ 下载这张图</button>
+    </div>
+</div>
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-    // ==================== 逐字动画 ====================
-    const heroTitleEl = document.getElementById('heroTitle');
-    const heroSubtitleEl = document.getElementById('heroSubtitle');
-    const titleText = heroTitleEl.textContent.trim();
-    heroTitleEl.innerHTML = '';
-    [...titleText].forEach(char => {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = char;
-        heroTitleEl.appendChild(span);
-    });
-    const chars = document.querySelectorAll('.char');
-    chars.forEach((char, i) => {
-        setTimeout(() => { char.classList.add('show'); }, i * 120);
-    });
-    setTimeout(() => { heroSubtitleEl.classList.add('show'); }, titleText.length * 120 + 200);
+    // ==================== 动画 ====================
+    (function() {
+        const titleEl = document.getElementById('heroTitle');
+        const subEl = document.getElementById('heroSubtitle');
+        const text = titleEl.textContent.trim();
+        titleEl.innerHTML = '';
+        [...text].forEach(c => {
+            const span = document.createElement('span'); span.className='char'; span.textContent=c; titleEl.appendChild(span);
+        });
+        document.querySelectorAll('.char').forEach((c,i) => setTimeout(()=>c.classList.add('show'), i*120));
+        setTimeout(()=>subEl.classList.add('show'), text.length*120+200);
+    })();
 
     // ==================== Supabase 配置 ====================
-    const SUPABASE_URL = 'https://jiqwlxyspqylgpnsjvnq.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppcXdseHlzcHF5bGdwbnNqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMDg0MDQsImV4cCI6MjEwMDg4NDQwNH0.J7kfxF4NvCPzGy-q5x1Ff6kX4ixc2McaxQE29gFQTVw';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseUrl = 'https://jiqwlxyspqylgpnsjvnq.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppcXdseHlzcHF5bGdwbnNqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMDg0MDQsImV4cCI6MjEwMDg4NDQwNH0.J7kfxF4NvCPzGy-q5x1Ff6kX4ixc2McaxQE29gFQTVw';
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const PROFILE_KEY = 'fishball_profile';
-    const CODE_KEY = 'fishball_user_code';
-    const PAGE_SIZE = 12;
-    const MSG_PAGE_SIZE = 20;
+    window.onerror = (msg,url,line) => { console.error(msg); showToast('⚠️ 页面错误，请刷新'); };
+    window.addEventListener('unhandledrejection', e => { console.error(e.reason); showToast('⚠️ 网络异常'); });
 
-    const fileTitleMap = new Map();
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    }
+
+    const PROFILE_KEY = 'fishball_profile', CODE_KEY = 'fishball_user_code', DRAFT_KEY = 'fishball_draft';
+    const PAGE_SIZE = 12, MSG_PAGE_SIZE = 20;
     const PRESET_IMAGES = [];
     let submissionImages = [];
-    let adminMode = false;
-    let selectMode = false;
-    let selectedIndices = new Set();
-    let currentPage = 0;
-    let hasMoreImages = true;
-    let isLoadingImages = false;
-    let messagePage = 0;
-    let hasMoreMessages = true;
+    let adminMode = false, adminPassword = null;
+    let selectMode = false, selectedIndices = new Set();
+    let currentPage = 0, hasMoreImages = true, isLoadingImages = false;
+    let messagePage = 0, hasMoreMessages = true, isLoadingMessages = false;
     let existingServerCode = null;
+    const fileTitleMap = new Map();
+    let retryFiles = [];
+    let syncInterval = null;
+    let galleryScrollY = 0;
 
-    // ---------- 身份管理 ----------
-    function getUserCode() { return localStorage.getItem(CODE_KEY) || null; }
-    function getProfile() {
-        try {
-            const saved = JSON.parse(localStorage.getItem(PROFILE_KEY));
-            return { author: saved?.author || '', code: saved?.code || null };
-        } catch { return { author: '', code: null }; }
-    }
-    function saveProfile(author, code) {
-        localStorage.setItem(PROFILE_KEY, JSON.stringify({ author, code }));
-        if (code) localStorage.setItem(CODE_KEY, code);
-    }
-    function generateUserCode() {
-        return 'FM' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
 
-    // ---------- Toast ----------
-    function showToast(msg) {
-        const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-        document.getElementById('toastContainer').appendChild(t);
-        setTimeout(() => { if (t.parentNode) t.remove(); }, 2400);
+    function getProfile() { try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {author:'',code:null}; } catch { return {author:'',code:null}; } }
+    function saveProfile(author, code) { localStorage.setItem(PROFILE_KEY, JSON.stringify({author,code})); if(code) localStorage.setItem(CODE_KEY, code); }
+    function generateUserCode() { return 'FM'+Math.random().toString(36).substring(2,10).toUpperCase(); }
+
+    function saveDraft(title, count) { if(title||count) localStorage.setItem(DRAFT_KEY, JSON.stringify({title,count})); }
+    function loadDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) || {}; } catch { return {}; } }
+    function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
+
+    function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>t.remove(),2400); }
+
+    function compressImage(file, maxW=1200, quality=0.8) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let w=img.width, h=img.height;
+                if(w>maxW){ h = Math.round(h*maxW/w); w = maxW; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img,0,0,w,h);
+                canvas.toBlob(blob => { if(blob) resolve(blob); else reject(new Error('压缩失败')); }, 'image/jpeg', quality);
+            };
+            img.onerror = reject;
+            img.src = URL.createObjectURL(file);
+        });
     }
 
-    // ---------- 统计数据 ----------
-    const heroTotalImagesEl = document.getElementById('heroTotalImages');
-    const heroTotalAuthorsEl = document.getElementById('heroTotalAuthors');
-    const galleryTotalImagesEl = document.getElementById('galleryTotalImages');
-    const galleryTotalAuthorsEl = document.getElementById('galleryTotalAuthors');
-    const galleryTotalMessagesEl = document.getElementById('galleryTotalMessages');
+    function showConfirm(message, options={}) {
+        return new Promise(resolve => {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmTitle').textContent = options.title || '确认操作';
+            document.getElementById('confirmMessage').textContent = message;
+            const pwdGroup = document.getElementById('confirmPasswordGroup');
+            const pwdInput = document.getElementById('confirmPasswordInput');
+            const copySection = document.getElementById('copySection');
+            const copyInput = document.getElementById('copyCodeInput');
+            pwdGroup.style.display = options.requirePassword ? 'block' : 'none';
+            if(options.requirePassword) pwdInput.value = '';
+            if(options.codeToCopy) {
+                copySection.style.display = 'block';
+                copyInput.value = options.codeToCopy;
+            } else {
+                copySection.style.display = 'none';
+            }
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            const cleanup = () => { modal.classList.remove('active'); document.body.style.overflow = ''; };
+            document.getElementById('confirmCancel').onclick = () => { cleanup(); resolve({confirmed:false}); };
+            document.getElementById('confirmOk').onclick = () => {
+                const password = options.requirePassword ? pwdInput.value.trim() : null;
+                cleanup();
+                resolve({confirmed:true, password});
+            };
+            modal.onclick = e => { if(e.target===modal) { cleanup(); resolve({confirmed:false}); } };
+        });
+    }
+
+    function copyCodeFromConfirm() {
+        const code = document.getElementById('copyCodeInput').value;
+        navigator.clipboard.writeText(code).then(() => showToast('✅ 专属码已复制'));
+    }
+
+    function copyCode() {
+        const code = document.getElementById('profileCode').value;
+        navigator.clipboard.writeText(code).then(() => showToast('✅ 专属码已复制'));
+    }
 
     async function updateStats() {
-        const totalImages = submissionImages.length + PRESET_IMAGES.length;
-        const uniqueAuthors = new Set(submissionImages.map(img => `${img.author}::${img.user_code}`));
-        heroTotalImagesEl.textContent = totalImages;
-        heroTotalAuthorsEl.textContent = uniqueAuthors.size;
-        galleryTotalImagesEl.textContent = totalImages;
-        galleryTotalAuthorsEl.textContent = uniqueAuthors.size;
-        const { count } = await sb.from('messages').select('*', { count: 'exact', head: true });
-        galleryTotalMessagesEl.textContent = count || 0;
+        const total = submissionImages.length + PRESET_IMAGES.length;
+        const authors = new Set(submissionImages.map(i => `${i.author}::${i.user_code}`));
+        document.getElementById('heroTotalImages').textContent = total;
+        document.getElementById('heroTotalAuthors').textContent = authors.size;
+        document.getElementById('galleryTotalImages').textContent = total;
+        document.getElementById('galleryTotalAuthors').textContent = authors.size;
+        const { count } = await sb.from('messages').select('*', { count:'exact', head:true });
+        document.getElementById('galleryTotalMessages').textContent = count || 0;
     }
 
-    // ---------- 加载投稿（无限滚动） ----------
-    async function loadSubmissions(reset = true) {
-        if (reset) {
-            currentPage = 0;
-            submissionImages = [];
-            hasMoreImages = true;
-            document.getElementById('galleryGrid').innerHTML = '';
-        }
-        if (!hasMoreImages || isLoadingImages) return;
+    async function loadSubmissions(reset=true) {
+        if(reset){ currentPage=0; submissionImages=[]; hasMoreImages=true; document.getElementById('galleryGrid').innerHTML = ''; }
+        if(!hasMoreImages || isLoadingImages) return;
         isLoadingImages = true;
         document.getElementById('loadMoreTrigger').textContent = '加载中...';
-        const { data, error } = await sb.from('submissions')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
-        if (error) { showToast('加载投稿失败'); isLoadingImages = false; return; }
-        if (data.length < PAGE_SIZE) hasMoreImages = false;
-        const newImages = data.map(row => ({
-            id: 'sub-' + row.id,
-            src: row.image_url,
-            title: row.title,
-            author: row.author,
-            submittedAt: row.created_at,
-            user_code: row.user_code || ''
-        }));
-        submissionImages = reset ? newImages : [...submissionImages, ...newImages];
-        currentPage++;
-        isLoadingImages = false;
+        const { data, error } = await sb.from('submissions').select('*').order('created_at', {ascending:false}).range(currentPage*PAGE_SIZE, (currentPage+1)*PAGE_SIZE-1);
+        if(error){ showToast('加载投稿失败'); isLoadingImages=false; return; }
+        if(data.length < PAGE_SIZE) hasMoreImages = false;
+        submissionImages = reset ? data.map(r => ({ id:'sub-'+r.id, src:r.image_url, title:r.title, author:r.author, submittedAt:r.created_at, user_code:r.user_code||'' }))
+                                : [...submissionImages, ...data.map(r => ({ id:'sub-'+r.id, src:r.image_url, title:r.title, author:r.author, submittedAt:r.created_at, user_code:r.user_code||'' }))];
+        currentPage++; isLoadingImages = false;
         renderGallery();
         updateStats();
-        const trigger = document.getElementById('loadMoreTrigger');
-        if (!hasMoreImages) {
-            trigger.textContent = '没有更多了';
-            trigger.style.display = 'block';
-        } else {
-            trigger.textContent = '下拉加载更多...';
-            trigger.style.display = 'block';
-        }
+        document.getElementById('loadMoreTrigger').textContent = hasMoreImages ? '加载更多...' : '没有更多了';
     }
 
     function getAllImages() { return [...PRESET_IMAGES, ...submissionImages]; }
 
-    // ---------- 渲染瀑布流 ----------
     function renderGallery() {
+        const grid = document.getElementById('galleryGrid');
+        grid.innerHTML = '';
         const all = getAllImages();
         const profile = getProfile();
-        const currentAuthor = (profile.author || '').trim();
-        const currentCode = (profile.code || '');
-        document.getElementById('galleryGrid').innerHTML = all.map((img, i) => {
+        const curAuthor = (profile.author||'').trim(), curCode = (profile.code||'');
+        const frag = document.createDocumentFragment();
+        all.forEach((img,i) => {
             const isSub = img.id && img.id.startsWith('sub-');
-            const timeStr = isSub ? new Date(img.submittedAt).toLocaleDateString() : '精选';
-            const isMine = isSub && currentAuthor && currentCode && img.author === currentAuthor && img.user_code === currentCode;
-            const checkedAttr = selectedIndices.has(i) ? 'checked' : '';
-            let actionButtons = '';
-            if (isSub) {
-                if (adminMode) actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteImageAdmin('${img.id}')">🔧</button>`;
-                else if (isMine) actionButtons += `<button class="card-action-btn delete-btn" onclick="deleteOwnImage('${img.id}')">✕</button>`;
+            const time = isSub ? new Date(img.submittedAt).toLocaleDateString() : '精选';
+            const isMine = isSub && curAuthor && curCode && img.author===curAuthor && img.user_code===curCode;
+            let actions = '';
+            if(isSub){
+                if(adminMode) actions += `<button class="card-action-btn delete-btn" onclick="deleteImageAdmin('${img.id}')">🔧</button>`;
+                else if(isMine) actions += `<button class="card-action-btn delete-btn" onclick="deleteOwnImage('${img.id}')">✕</button>`;
             }
-            if (!selectMode) actionButtons += `<button class="card-action-btn" onclick="downloadSingle('${img.src}')">⬇</button>`;
-            const cardClick = selectMode ? `toggleSelectImage(${i}); event.stopPropagation();` : `if(!event.target.closest('button')) openLightbox('${img.src}');`;
-            return `<div class="image-card" data-index="${i}" data-id="${img.id}" onclick="${cardClick}">
-                <input type="checkbox" class="select-checkbox" data-index="${i}" ${checkedAttr}>
-                <div class="image-card-inner"><img src="${img.src}" loading="lazy" onerror="this.style.display='none'"><div class="image-time-overlay">${timeStr}</div></div>
+            if(!selectMode) actions += `<button class="card-action-btn" onclick="downloadSingle('${escapeHtml(img.src)}')">⬇</button>`;
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.setAttribute('data-index', i);
+            card.setAttribute('data-src', img.src);
+            card.innerHTML = `
+                <input type="checkbox" class="select-checkbox" data-index="${i}" ${selectedIndices.has(i)?'checked':''}>
+                <div class="image-card-inner"><img src="${escapeHtml(img.src)}" loading="lazy" onerror="this.style.display='none'"><div class="image-time-overlay">${time}</div></div>
                 <div class="image-card-info">
-                    <span class="image-card-title">${img.title || ''}</span>
-                    <span class="image-card-author">by ${img.author}${isMine ? '<span class="my-tag">我的</span>' : ''}</span>
+                    <span class="image-card-title">${escapeHtml(img.title) || ''}</span>
+                    <span class="image-card-author">by ${escapeHtml(img.author)}${isMine?'<span class="my-tag">我的</span>':''}</span>
                     <div class="badge-row"><span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span></div>
-                    ${!selectMode ? `<div class="image-card-actions">${actionButtons}</div>` : ''}
-                </div>
-            </div>`;
-        }).join('');
+                    ${!selectMode ? `<div class="image-card-actions">${actions}</div>` : ''}
+                </div>`;
+            frag.appendChild(card);
+        });
+        grid.appendChild(frag);
     }
 
-    // ---------- 无限滚动 IntersectionObserver ----------
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMoreImages && !isLoadingImages) {
-            loadSubmissions(false);
+    document.getElementById('galleryGrid').addEventListener('click', function(e) {
+        if (e.target.closest('button, .card-action-btn')) return;
+        if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
+            const idx = parseInt(e.target.getAttribute('data-index'), 10);
+            if (!isNaN(idx)) {
+                if (e.target.checked) selectedIndices.add(idx);
+                else selectedIndices.delete(idx);
+                updateSelectedCount();
+            }
+            return;
         }
-    }, { threshold: 0.1 });
-    observer.observe(document.getElementById('loadMoreTrigger'));
+        const card = e.target.closest('.image-card');
+        if (!card) return;
+        const index = parseInt(card.getAttribute('data-index'), 10);
+        if (isNaN(index)) return;
+        if (selectMode) {
+            toggleSelectImage(index);
+        } else {
+            const url = card.getAttribute('data-src');
+            if (url) openLightbox(url);
+        }
+    });
 
-    // ---------- 下载（直接使用URL） ----------
-    window.downloadSingle = function(url) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    };
+    const imgObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting && hasMoreImages && !isLoadingImages) loadSubmissions(false); }, {threshold:0.1});
+    imgObserver.observe(document.getElementById('loadMoreTrigger'));
 
-    // ---------- 多选打包下载 ----------
+    const msgSentinel = document.getElementById('msgLoadMore');
+    const msgObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting && hasMoreMessages && !isLoadingMessages) loadMessages(false); }, {threshold:0.1});
+    msgObserver.observe(msgSentinel);
+
+    async function loadMessages(reset=true) {
+        if(reset){ messagePage=0; document.getElementById('messageList').innerHTML=''; hasMoreMessages=true; msgSentinel.style.display='block'; }
+        if(!hasMoreMessages || isLoadingMessages) return;
+        isLoadingMessages = true;
+        const { data, error } = await sb.from('messages').select('*').order('created_at',{ascending:false}).range(messagePage*MSG_PAGE_SIZE, (messagePage+1)*MSG_PAGE_SIZE-1);
+        if(error){ isLoadingMessages=false; return; }
+        if(data.length < MSG_PAGE_SIZE) hasMoreMessages = false;
+        const profile = getProfile();
+        const frag = document.createDocumentFragment();
+        data.forEach(m => {
+            const isMine = profile.code && m.user_code===profile.code && m.author===profile.author;
+            const div = document.createElement('div'); div.className='message-item';
+            div.innerHTML = `<div class="msg-author">${escapeHtml(m.show_author?m.author:'匿名')}${isMine?'<span class="my-tag">我的</span>':''}</div>
+                <div class="msg-text">${escapeHtml(m.content)}</div><div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
+                ${adminMode?`<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>`:(isMine?`<button class="msg-delete" onclick="deleteOwnMessage(${m.id})">✕</button>`:'')}`;
+            frag.appendChild(div);
+        });
+        document.getElementById('messageList').appendChild(frag);
+        messagePage++; isLoadingMessages = false;
+        if(!hasMoreMessages) { msgSentinel.style.display = 'none'; }
+    }
+
+    function handleMessageSubmit(e) {
+        e.preventDefault();
+        const profile = getProfile();
+        if(!profile.author || !profile.code) return showToast('请先设置个人身份');
+        const content = document.getElementById('msgContent').value.trim();
+        if(!content) return;
+        const anon = document.getElementById('msgAnonymous').checked;
+        sb.from('messages').insert({ author:profile.author, content, user_code:profile.code, show_author:!anon }).then(({error}) => {
+            if(error) return showToast('留言失败');
+            document.getElementById('msgContent').value = '';
+            showToast('留言成功！');
+            loadMessages(true);
+        });
+    }
+
+    window.downloadSingle = url => { const a=document.createElement('a'); a.href=url; a.download=''; document.body.appendChild(a); a.click(); a.remove(); };
+
+    function downloadCurrent() {
+        const src = document.getElementById('lightboxImage').src;
+        if (src) window.downloadSingle(src);
+    }
+
     async function downloadSelected() {
-        if (selectedIndices.size === 0) { showToast('请先选择图片'); return; }
+        if(!selectedIndices.size) return showToast('请先选择图片');
         showToast('📦 打包中...');
         const all = getAllImages();
-        const zip = new JSZip();
-        const folder = zip.folder('鱼丸的小屋_精选');
+        const zip = new JSZip(); const folder = zip.folder('鱼丸的小屋_精选');
         const promises = [];
         selectedIndices.forEach(i => {
             const img = all[i];
-            if (img) {
-                promises.push(
-                    fetch(img.src).then(r => r.blob()).then(blob => {
-                        folder.file(`${i+1}_${img.title || 'image'}.jpg`, blob);
-                    }).catch(() => {})
-                );
-            }
+            if(img) promises.push(fetch(img.src).then(r=>r.blob()).then(blob=>folder.file(`${i+1}_${img.title||'image'}.jpg`,blob)).catch(()=>{}));
         });
         await Promise.all(promises);
-        const content = await zip.generateAsync({ type: 'blob' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(content);
-        a.download = '鱼丸的小屋_精选.zip';
-        a.click();
+        const blob = await zip.generateAsync({type:'blob'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='鱼丸的小屋_精选.zip'; a.click();
         showToast('✅ 下载完成');
         cancelSelectMode();
     }
 
-    // ---------- 选择模式 ----------
     function toggleSelectMode() {
         selectMode = !selectMode;
         if (selectMode) {
@@ -685,6 +671,7 @@
         }
         renderGallery();
     }
+
     function cancelSelectMode() {
         selectMode = false;
         selectedIndices.clear();
@@ -694,301 +681,286 @@
         document.getElementById('btnDownloadSelected').style.display = 'none';
         renderGallery();
     }
+
     function updateSelectedCount() {
         const btn = document.getElementById('btnDownloadSelected');
         if (btn) btn.textContent = `下载选中 (${selectedIndices.size})`;
     }
-    window.toggleSelectImage = function(index) {
-        const idx = Number(index);
+
+    window.toggleSelectImage = function(idx) {
         if (selectedIndices.has(idx)) selectedIndices.delete(idx);
         else selectedIndices.add(idx);
-        const checkbox = document.querySelector(`input[data-index="${idx}"]`);
-        if (checkbox) checkbox.checked = selectedIndices.has(idx);
+        const cb = document.querySelector(`.select-checkbox[data-index="${idx}"]`);
+        if (cb) cb.checked = selectedIndices.has(idx);
         updateSelectedCount();
     };
 
-    // ---------- 灯箱 ----------
     function openLightbox(url) {
         if (selectMode) return;
         document.getElementById('lightboxImage').src = url;
         document.getElementById('lightboxOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
     }
+
     function closeLightbox() {
         document.getElementById('lightboxOverlay').classList.remove('active');
         document.body.style.overflow = '';
     }
 
-    // ---------- 投稿（Storage 上传，Bucket: fishball-home） ----------
-    document.getElementById('submitForm').addEventListener('submit', async e => {
+    // 弹窗控制
+    function openSubmitModal() {
+        if(!getProfile().code) return showToast('请先设置个人身份');
+        const draft = loadDraft();
+        document.getElementById('inputTitle').value = draft.title || '';
+        if(draft.count) showToast(`ℹ️ 检测到上次未完成的投稿（${draft.count}张图片），标题已恢复`);
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('fileList').innerHTML = '';
+        document.getElementById('submitModalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSubmitModal() {
+        const title = document.getElementById('inputTitle').value;
+        const files = document.getElementById('inputFile').files;
+        if(title || files.length) saveDraft(title, files.length);
+        else clearDraft();
+        document.getElementById('submitModalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // 投稿表单提交
+    async function handleSubmitForm(e) {
         e.preventDefault();
         const profile = getProfile();
-        if (!profile.author || !profile.code) { showToast('请先在个人主页设置昵称和专属码'); return; }
+        if(!profile.author || !profile.code) return showToast('请先设置个人身份');
         const files = document.getElementById('inputFile').files;
-        if (!files.length) return showToast('请选择至少一张图片');
+        if(!files.length) return showToast('请选择至少一张图片');
         const btn = document.getElementById('btnSubmitForm');
-        btn.disabled = true; btn.textContent = '⏳ 上传中...';
-        let count = 0;
-        for (let i = 0; i < files.length; i++) {
-            const f = files[i];
-            if (!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size > 10*1024*1024) {
-                showToast(`⚠️ 跳过 "${f.name}"`); continue;
-            }
-            const fileExt = f.name.split('.').pop();
-            const fileName = `uploads/${profile.code}_${Date.now()}_${Math.random().toString(36).substring(2,8)}.${fileExt}`;
-            const { error: uploadError } = await sb.storage.from('fishball-home').upload(fileName, f, {
-                cacheControl: '3600',
-                upsert: false
-            });
-            if (uploadError) { showToast(`⚠️ "${f.name}" 上传失败`); continue; }
-            const { data: urlData } = sb.storage.from('fishball-home').getPublicUrl(fileName);
-            const publicUrl = urlData.publicUrl;
-            const key = f.name + '_' + f.size;
-            const customInput = document.querySelector(`.custom-title-input[data-file-key="${key}"]`);
-            const finalTitle = customInput ? customInput.value.trim() : '';
-            const { error: dbError } = await sb.from('submissions').insert({
-                title: finalTitle,
-                author: profile.author,
-                image_url: publicUrl,
-                user_code: profile.code
-            });
-            if (dbError) { showToast(`⚠️ "${f.name}" 保存失败`); continue; }
-            count++;
-        }
-        if (count > 0) {
-            document.getElementById('submitModalOverlay').classList.remove('active');
+        btn.disabled = true;
+        const count = await uploadFiles(files, profile, btn);
+        if(count>0) {
+            closeSubmitModal();
             showToast(`🎉 成功投稿 ${count} 张`);
+            clearDraft();
             loadSubmissions(true);
         }
-        btn.disabled = false; btn.textContent = '✨ 提交投稿';
-    });
-
-    // ---------- 管理员删除投稿 ----------
-    window.deleteImageAdmin = async function(id) {
-        if (!confirm('管理员删除该投稿？')) return;
-        const { error } = await sb.rpc('admin_delete_submission', {
-            submission_id: parseInt(id.replace('sub-', '')),
-            admin_pwd: 'FishBallAdmin2025'
-        });
-        if (error) return showToast('❌ 删除失败');
-        showToast('🗑️ 已删除');
-        loadSubmissions(true);
-    };
-
-    // ---------- 用户删除自己的投稿 ----------
-    window.deleteOwnImage = async function(id) {
-        if (!confirm('确定删除您的投稿？')) return;
-        const profile = getProfile();
-        if (!profile.code) return showToast('请先设置个人身份');
-        const { error } = await sb.rpc('delete_own_submission', {
-            submission_id: parseInt(id.replace('sub-', '')),
-            author_name: profile.author,
-            code: profile.code
-        });
-        if (error) return showToast('❌ 删除失败');
-        showToast('🗑️ 已删除');
-        loadSubmissions(true);
-    };
-
-    // ---------- 留言板分页 ----------
-    async function loadMessages(reset = true) {
-        if (reset) {
-            messagePage = 0;
-            document.getElementById('messageList').innerHTML = '';
-            hasMoreMessages = true;
-            document.getElementById('msgLoadMore').style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = '✨ 提交投稿';
+        const retryBtn = document.getElementById('retryFailedBtn');
+        if(retryFiles.length) {
+            retryBtn.style.display = 'block';
+            retryBtn.textContent = `重试失败文件 (${retryFiles.length})`;
+        } else {
+            retryBtn.style.display = 'none';
         }
-        if (!hasMoreMessages) return;
-        const { data, error } = await sb.from('messages')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .range(messagePage * MSG_PAGE_SIZE, (messagePage + 1) * MSG_PAGE_SIZE - 1);
-        if (error) return;
-        if (data.length < MSG_PAGE_SIZE) hasMoreMessages = false;
-        const profile = getProfile();
-        const frag = document.createDocumentFragment();
-        data.forEach(m => {
-            const isMine = profile.code && m.user_code === profile.code && m.author === profile.author;
-            const div = document.createElement('div');
-            div.className = 'message-item';
-            div.innerHTML = `
-                <div class="msg-author">${m.show_author ? m.author : '匿名'}${isMine ? ' <span class="my-tag">我的</span>' : ''}</div>
-                <div class="msg-text">${m.content}</div>
-                <div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
-                ${adminMode ? `<button class="msg-delete msg-admin-delete" onclick="deleteMessageAdmin(${m.id})">管理员删除</button>` : (isMine ? `<button class="msg-delete" onclick="deleteOwnMessage(${m.id})">✕</button>` : '')}
-            `;
-            frag.appendChild(div);
-        });
-        document.getElementById('messageList').appendChild(frag);
-        messagePage++;
-        document.getElementById('msgLoadMore').style.display = hasMoreMessages ? 'block' : 'none';
     }
 
-    window.deleteOwnMessage = async function(id) {
-        if (!confirm('确定删除您的这条留言？')) return;
-        const profile = getProfile();
-        const { error } = await sb.rpc('delete_own_message', {
-            message_id: id,
-            author_name: profile.author,
-            code: profile.code
-        });
-        if (error) return showToast('❌ 删除失败');
-        showToast('🗑️ 已删除');
-        loadMessages(true);
-    };
-
-    window.deleteMessageAdmin = async function(id) {
-        if (!confirm('管理员删除该留言？')) return;
-        const { error } = await sb.rpc('admin_delete_message', {
-            message_id: id,
-            admin_pwd: 'FishBallAdmin2025'
-        });
-        if (error) return showToast('❌ 删除失败');
-        showToast('🗑️ 已删除');
-        loadMessages(true);
-    };
-
-    document.getElementById('messageForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const profile = getProfile();
-        if (!profile.author || !profile.code) return showToast('请先设置个人身份');
-        const content = document.getElementById('msgContent').value.trim();
-        if (!content) return;
-        const anonymous = document.getElementById('msgAnonymous').checked;
-        const { error } = await sb.from('messages').insert({
-            author: profile.author,
-            content,
-            user_code: profile.code,
-            show_author: !anonymous
-        });
-        if (error) return showToast('留言失败');
-        document.getElementById('msgContent').value = '';
-        showToast('留言成功！');
-        loadMessages(true);
-    });
-
-    // ---------- 个人主页统计 ----------
-    async function updateProfileStats() {
-        const profile = getProfile();
-        const author = profile.author;
-        const code = profile.code;
-        if (!author || !code) {
-            document.getElementById('profileSubmissions').textContent = 0;
-            document.getElementById('profileMessages').textContent = 0;
-            return;
+    async function uploadFiles(files, profile, btn) {
+        let count = 0;
+        retryFiles = [];
+        for(let i=0;i<files.length;i++) {
+            const f = files[i];
+            if(!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size>10*1024*1024){ showToast(`⚠️ 跳过 "${f.name}"`); continue; }
+            try {
+                btn.textContent = `⏳ 压缩上传 (${i+1}/${files.length})`;
+                const compressed = await compressImage(f, 1200, 0.8);
+                const fileName = `uploads/${profile.code}_${Date.now()}_${Math.random().toString(36).substring(2,8)}.jpg`;
+                const { error: uploadError } = await sb.storage.from('fishball-home').upload(fileName, compressed, { cacheControl:'3600', contentType:'image/jpeg', upsert:false });
+                if(uploadError) { retryFiles.push(f); continue; }
+                const { data: { publicUrl } } = sb.storage.from('fishball-home').getPublicUrl(fileName);
+                const key = f.name+'_'+f.size;
+                const customTitle = document.querySelector(`.custom-title-input[data-file-key="${key}"]`);
+                const finalTitle = customTitle ? customTitle.value.trim() : '';
+                const { error: dbError } = await sb.from('submissions').insert({ title:finalTitle, author:profile.author, image_url:publicUrl, user_code:profile.code });
+                if(dbError){ showToast(`⚠️ "${f.name}" 保存失败`); continue; }
+                count++;
+            } catch { retryFiles.push(f); }
         }
-        const { count: subCount } = await sb.from('submissions')
-            .select('*', { count: 'exact', head: true })
-            .eq('author', author).eq('user_code', code);
-        const { count: msgCount } = await sb.from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('author', author).eq('user_code', code);
-        document.getElementById('profileSubmissions').textContent = subCount || 0;
-        document.getElementById('profileMessages').textContent = msgCount || 0;
+        return count;
     }
 
-    async function checkAuthorExists(author) {
-        const { data, error } = await sb.rpc('lookup_profile_code', { p_author: author.trim() });
-        if (error) return null;
-        return data;
+    function retryUpload() {
+        if(!retryFiles.length) return;
+        const profile = getProfile();
+        const btn = document.getElementById('retryFailedBtn');
+        btn.disabled = true;
+        uploadFiles(retryFiles, profile, btn).then(count => {
+            if(count>0){ showToast(`✅ 补传 ${count} 张`); loadSubmissions(true); }
+            btn.disabled = false; btn.style.display = 'none'; retryFiles = [];
+        });
     }
 
-    async function openProfileModal() {
+    // 管理员相关
+    window.deleteImageAdmin = async id => {
+        const res = await showConfirm('确定永久删除该投稿吗？', {title:'管理员删除'});
+        if(!res.confirmed) return;
+        if(!adminPassword) return showToast('管理员身份已失效');
+        const numericId = parseInt(id.replace('sub-',''));
+        const { data: row } = await sb.from('submissions').select('image_url').eq('id', numericId).single();
+        const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: adminPassword });
+        if(error) return showToast('❌ 删除失败');
+        if(row && row.image_url) await deleteStorageFile(row.image_url);
+        showToast('🗑️ 已删除'); loadSubmissions(true);
+    };
+    window.deleteMessageAdmin = async id => {
+        const res = await showConfirm('确定永久删除该留言吗？', {title:'管理员删除'});
+        if(!res.confirmed) return;
+        if(!adminPassword) return showToast('管理员身份已失效');
+        const { error } = await sb.rpc('admin_delete_message', { message_id: id, admin_pwd: adminPassword });
+        if(error) return showToast('❌ 删除失败');
+        showToast('🗑️ 已删除'); loadMessages(true);
+    };
+    window.deleteOwnImage = async id => {
+        const res = await showConfirm('确定删除您的投稿吗？', {title:'删除投稿'});
+        if(!res.confirmed) return;
+        const profile = getProfile();
+        if(!profile.code) return showToast('请先设置个人身份');
+        const numericId = parseInt(id.replace('sub-',''));
+        const { data: row } = await sb.from('submissions').select('image_url').eq('id', numericId).single();
+        const { error } = await sb.rpc('delete_own_submission', { submission_id: numericId, author_name: profile.author, code: profile.code });
+        if(error) return showToast('❌ 删除失败');
+        if(row && row.image_url) await deleteStorageFile(row.image_url);
+        showToast('🗑️ 已删除'); loadSubmissions(true);
+    };
+    window.deleteOwnMessage = async id => {
+        const res = await showConfirm('确定删除您的留言吗？', {title:'删除留言'});
+        if(!res.confirmed) return;
+        const profile = getProfile();
+        const { error } = await sb.rpc('delete_own_message', { message_id: id, author_name: profile.author, code: profile.code });
+        if(error) return showToast('❌ 删除失败');
+        showToast('🗑️ 已删除'); loadMessages(true);
+    };
+
+    async function deleteStorageFile(url) {
+        const path = url.replace('/public/fishball-home/','');
+        if (!path) return;
+        const { error } = await sb.storage.from('fishball-home').remove([path]);
+        if (error) console.warn('Storage 文件删除失败:', error);
+    }
+
+    async function enterAdminMode() {
+        const res = await showConfirm('请输入管理员密码', {title:'管理员验证', requirePassword:true});
+        if(!res.confirmed || !res.password) return;
+        const { data, error } = await sb.rpc('verify_admin_password', { pwd:res.password });
+        if(error || !data) return showToast('❌ 密码错误');
+        adminMode = true; adminPassword = res.password;
+        document.getElementById('btnAdminMode').textContent = '🔑 退出管理';
+        document.getElementById('btnAdminModeMsg').textContent = '🔑 退出管理';
+        showToast('已进入管理员模式');
+        renderGallery();
+        if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
+    }
+
+    function exitAdminMode(silent=false) {
+        adminMode = false; adminPassword = null;
+        document.getElementById('btnAdminMode').textContent = '🔑 管理';
+        document.getElementById('btnAdminModeMsg').textContent = '🔑 管理';
+        if(!silent) showToast('已退出管理员模式');
+        renderGallery();
+        if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
+    }
+
+    function toggleAdminMode() { adminMode ? exitAdminMode() : enterAdminMode(); }
+
+    async function checkAuthorExists(name) { const { data } = await sb.rpc('lookup_profile_code', { p_author:name.trim() }); return data; }
+
+    async function syncProfileFromServer() {
+        const profile = getProfile();
+        if(!profile.code) return;
+        const { data, error } = await sb.rpc('get_author_by_code', { p_code:profile.code });
+        if(error || !data) return;
+        if(data !== profile.author) {
+            saveProfile(data, profile.code);
+            showToast('ℹ️ 昵称已自动同步');
+            renderGallery();
+            if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
+        }
+    }
+
+    function startAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(syncProfileFromServer, 30000); }
+    function stopAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = null; }
+    document.addEventListener('visibilitychange', () => { document.hidden ? stopAutoSync() : (startAutoSync(), syncProfileFromServer()); });
+
+    function openProfileModal() {
         const p = getProfile();
         document.getElementById('profileAuthor').value = p.author;
         document.getElementById('profileCode').value = p.code || '';
         existingServerCode = null;
         document.getElementById('verificationArea').style.display = 'none';
-        document.getElementById('verifyCode').value = '';
-        document.getElementById('codeHint').textContent = '换设备时输入此码可同步身份';
+        document.getElementById('codeHint').textContent = '换设备时输入此码同步身份，修改后历史数据自动迁移';
         updateProfileStats();
+        document.getElementById('copyCodeBtn').style.display = p.code ? 'inline-block' : 'none';
         document.getElementById('profileModalOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
-    function closeProfileModal() {
-        document.getElementById('profileModalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
+    function closeProfileModal() { document.getElementById('profileModalOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+
+    async function updateProfileStats() {
+        const profile = getProfile();
+        if(!profile.author || !profile.code) {
+            document.getElementById('profileSubmissions').textContent = '0';
+            document.getElementById('profileMessages').textContent = '0';
+            return;
+        }
+        const { count: subCount } = await sb.from('submissions').select('*', { count:'exact', head:true }).eq('author', profile.author).eq('user_code', profile.code);
+        const { count: msgCount } = await sb.from('messages').select('*', { count:'exact', head:true }).eq('author', profile.author).eq('user_code', profile.code);
+        document.getElementById('profileSubmissions').textContent = subCount || 0;
+        document.getElementById('profileMessages').textContent = msgCount || 0;
     }
 
-    // 昵称输入框失焦时检查是否存在
-    document.getElementById('profileAuthor').addEventListener('blur', async function() {
-        const newName = this.value.trim();
-        if (!newName) {
-            document.getElementById('verificationArea').style.display = 'none';
-            existingServerCode = null;
-            return;
-        }
-        const oldProfile = getProfile();
-        if (oldProfile.author === newName && oldProfile.code) {
-            document.getElementById('verificationArea').style.display = 'none';
-            existingServerCode = null;
-            return;
-        }
-        const code = await checkAuthorExists(newName);
-        if (code) {
-            existingServerCode = code;
-            if (oldProfile.code === code) {
-                document.getElementById('verificationArea').style.display = 'none';
-                document.getElementById('profileCode').value = code;
-            } else if (!oldProfile.code) {
-                document.getElementById('verificationArea').style.display = 'block';
-                document.getElementById('profileCode').value = '';
-                document.getElementById('codeHint').textContent = '该昵称已注册，请输入专属码恢复身份';
-            } else {
-                showToast('该昵称已被其他人使用');
-                this.value = oldProfile.author;
-            }
-        } else {
-            existingServerCode = null;
-            document.getElementById('verificationArea').style.display = 'none';
-            if (!oldProfile.code) {
-                const newCode = generateUserCode();
-                document.getElementById('profileCode').value = newCode;
-                document.getElementById('codeHint').textContent = '这是您的新专属码，请牢记！';
-            }
-        }
-    });
-
-    // 保存个人资料
-    document.getElementById('profileForm').addEventListener('submit', async e => {
+    // 个人主页表单提交
+    function handleProfileSubmit(e) {
         e.preventDefault();
         const newName = document.getElementById('profileAuthor').value.trim();
-        if (!newName) return showToast('昵称不能为空');
-        const oldProfile = getProfile();
-        const oldCode = oldProfile.code;
+        if(!newName) return showToast('昵称不能为空');
+        const old = getProfile();
+        const oldCode = old.code;
 
-        // 已登录状态
-        if (oldCode) {
-            if (oldProfile.author !== newName) {
-                const existCode = await checkAuthorExists(newName);
-                if (existCode && existCode !== oldCode) return showToast('该昵称已被注册');
-                const { error } = await sb.rpc('update_profile_author', {
-                    old_author: oldProfile.author,
-                    new_author: newName,
-                    p_code: oldCode
+        if(oldCode) {
+            if(old.author !== newName) {
+                checkAuthorExists(newName).then(exist => {
+                    if(exist && exist!==oldCode) return showToast('该昵称已被注册');
+                    sb.rpc('update_profile_author', { old_author:old.author, new_author:newName, p_code:oldCode }).then(() => {
+                        let newCode = document.getElementById('profileCode').value.trim() || oldCode;
+                        if(newCode !== oldCode) {
+                            sb.rpc('update_user_code', { old_code:oldCode, new_code:newCode }).then(() => {
+                                saveProfile(newName, newCode);
+                                showToast('个人信息已保存');
+                                closeProfileModal();
+                                loadSubmissions(true);
+                            });
+                        } else {
+                            saveProfile(newName, oldCode);
+                            showToast('个人信息已保存');
+                            closeProfileModal();
+                            loadSubmissions(true);
+                        }
+                    });
                 });
-                if (error) return showToast('昵称更新失败');
+                return;
             }
-            let newCode = document.getElementById('profileCode').value.trim();
-            if (!newCode) newCode = oldCode;
-            if (newCode !== oldCode) {
-                const { error } = await sb.rpc('update_user_code', { old_code: oldCode, new_code: newCode });
-                if (error) return showToast('专属码迁移失败');
+            let newCode = document.getElementById('profileCode').value.trim() || oldCode;
+            if(newCode !== oldCode) {
+                sb.rpc('update_user_code', { old_code:oldCode, new_code:newCode }).then(() => {
+                    saveProfile(newName, newCode);
+                    showToast('个人信息已保存');
+                    closeProfileModal();
+                    loadSubmissions(true);
+                });
+                return;
             }
-            saveProfile(newName, newCode);
+            saveProfile(newName, oldCode);
             showToast('个人信息已保存');
             closeProfileModal();
             loadSubmissions(true);
-            if (document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
             return;
         }
 
-        // 首次注册或恢复
-        if (document.getElementById('verificationArea').style.display !== 'none') {
+        if(document.getElementById('verificationArea').style.display !== 'none') {
             const inputCode = document.getElementById('verifyCode').value.trim();
-            if (!inputCode) return showToast('请输入专属码');
-            if (inputCode !== existingServerCode) return showToast('专属码错误');
+            if(!inputCode) return showToast('请输入专属码');
+            if(inputCode !== existingServerCode) return showToast('专属码错误');
             saveProfile(newName, existingServerCode);
             showToast('身份恢复成功！');
             closeProfileModal();
@@ -996,182 +968,92 @@
             return;
         }
 
-        let newCode = document.getElementById('profileCode').value.trim();
-        if (!newCode) newCode = generateUserCode();
-        const { error } = await sb.rpc('register_profile', { p_author: newName, p_code: newCode });
-        if (error) {
-            if (error.message.includes('unique')) return showToast('昵称已被注册');
-            return showToast('注册失败');
-        }
-        saveProfile(newName, newCode);
-        showToast('身份创建成功！专属码：' + newCode);
-        closeProfileModal();
-        loadSubmissions(true);
-    });
-
-    // ---------- 管理员模式 ----------
-    function toggleAdminMode() {
-        if (adminMode) {
-            adminMode = false;
-            document.getElementById('btnAdminMode').textContent = '🔑 管理';
-            document.getElementById('btnAdminModeMsg').textContent = '🔑 管理';
-            showToast('已退出管理员模式');
-        } else {
-            const pwd = prompt('请输入管理员密码：');
-            if (pwd === 'FishBallAdmin2025') {
-                adminMode = true;
-                document.getElementById('btnAdminMode').textContent = '🔑 退出管理';
-                document.getElementById('btnAdminModeMsg').textContent = '🔑 退出管理';
-                showToast('已进入管理员模式');
-            } else {
-                showToast('❌ 密码错误');
-                return;
-            }
-        }
-        renderGallery();
-        if (document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
+        let newCode = document.getElementById('profileCode').value.trim() || generateUserCode();
+        sb.rpc('register_profile', { p_author:newName, p_code:newCode }).then(({error}) => {
+            if(error) { showToast(error.message.includes('unique')?'昵称已被注册':'注册失败'); return; }
+            saveProfile(newName, newCode);
+            showConfirm('身份创建成功！请务必保存您的专属码，遗失无法找回。', { title:'🎉 注册成功', codeToCopy:newCode });
+            closeProfileModal();
+            loadSubmissions(true);
+        });
     }
 
-    // ---------- 导航与弹窗事件 ----------
-    document.getElementById('btnAdminMode').addEventListener('click', toggleAdminMode);
-    document.getElementById('btnAdminModeMsg').addEventListener('click', toggleAdminMode);
-    document.getElementById('btnEnter').addEventListener('click', () => {
-        document.getElementById('heroSection').classList.add('fade-out');
-        setTimeout(() => {
-            document.getElementById('heroSection').style.display = 'none';
-            document.getElementById('gallerySection').classList.add('active');
-            document.getElementById('gallerySection').style.display = 'block';
-            window.scrollTo(0,0);
-        }, 350);
-    });
-    document.getElementById('btnBack').addEventListener('click', () => {
+    // 导航
+    function goToMessages() {
+        galleryScrollY = window.scrollY;
         document.getElementById('gallerySection').classList.remove('active');
-        document.getElementById('gallerySection').style.display = 'none';
-        document.getElementById('heroSection').style.display = 'flex';
-        document.getElementById('heroSection').classList.remove('fade-out');
-        adminMode = false;
-        document.getElementById('btnAdminMode').textContent = '🔑 管理';
-        document.getElementById('btnAdminModeMsg').textContent = '🔑 管理';
-    });
-    document.getElementById('btnOpenMessages').addEventListener('click', () => {
-        document.getElementById('gallerySection').classList.remove('active');
-        document.getElementById('gallerySection').style.display = 'none';
+        document.getElementById('gallerySection').style.display='none';
         document.getElementById('messageSection').classList.add('active');
-        document.getElementById('messageSection').style.display = 'block';
+        document.getElementById('messageSection').style.display='block';
         loadMessages(true);
         window.scrollTo(0,0);
-    });
-    document.getElementById('btnBackFromMessages').addEventListener('click', () => {
+    }
+
+    function backToGallery() {
         document.getElementById('messageSection').classList.remove('active');
-        document.getElementById('messageSection').style.display = 'none';
+        document.getElementById('messageSection').style.display='none';
         document.getElementById('gallerySection').classList.add('active');
-        document.getElementById('gallerySection').style.display = 'block';
-        window.scrollTo(0,0);
-    });
-    document.getElementById('btnOpenProfile').addEventListener('click', openProfileModal);
-    document.getElementById('btnProfileClose').addEventListener('click', closeProfileModal);
-    document.getElementById('btnOpenSubmit').addEventListener('click', () => {
-        if (!getProfile().code) return showToast('请先设置个人身份');
-        fileTitleMap.clear();
-        document.getElementById('submitForm').reset();
-        document.getElementById('filePreview').style.display = 'none';
-        document.getElementById('fileList').classList.remove('has-files');
-        document.getElementById('fileList').innerHTML = '';
-        document.getElementById('submitModalOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
-    document.getElementById('btnModalClose').addEventListener('click', () => {
-        document.getElementById('submitModalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
-    });
-    document.getElementById('btnLightboxClose').addEventListener('click', closeLightbox);
-    document.getElementById('btnLightboxDownload').addEventListener('click', () => {
-        if (document.getElementById('lightboxImage').src) window.downloadSingle(document.getElementById('lightboxImage').src);
-    });
-    document.getElementById('btnOpenAbout').addEventListener('click', () => {
-        document.getElementById('aboutModalOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
-    document.getElementById('btnAboutClose').addEventListener('click', () => {
-        document.getElementById('aboutModalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
-    });
-    // 点击遮罩关闭弹窗
+        document.getElementById('gallerySection').style.display='block';
+        setTimeout(() => { window.scrollTo(0, galleryScrollY); }, 50);
+    }
+
+    // 进入小屋
+    document.getElementById('btnEnter').onclick = () => {
+        document.getElementById('heroSection').classList.add('fade-out');
+        setTimeout(() => {
+            document.getElementById('heroSection').style.display='none';
+            document.getElementById('gallerySection').classList.add('active');
+            document.getElementById('gallerySection').style.display='block';
+            window.scrollTo(0,0);
+            startAutoSync();
+        }, 350);
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+        document.getElementById('gallerySection').classList.remove('active');
+        document.getElementById('gallerySection').style.display='none';
+        document.getElementById('heroSection').style.display='flex';
+        document.getElementById('heroSection').classList.remove('fade-out');
+    };
+
+    // 个人主页按钮
+    document.getElementById('btnOpenProfile').onclick = openProfileModal;
+    document.getElementById('btnProfileClose').onclick = closeProfileModal;
+
+    // 弹窗点击遮罩关闭
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', e => {
-            if (e.target === overlay) {
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
+        overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.classList.remove('active'); document.body.style.overflow=''; } });
     });
-    document.getElementById('lightboxOverlay').addEventListener('click', e => {
-        if (e.target === document.getElementById('lightboxOverlay')) closeLightbox();
-    });
-    document.getElementById('msgLoadMore').addEventListener('click', () => loadMessages(false));
 
-    // 文件选择和拖拽
-    const fileUploadArea = document.getElementById('fileUploadArea');
-    const inputFile = document.getElementById('inputFile');
-    const inputTitle = document.getElementById('inputTitle');
-    fileUploadArea.addEventListener('click', () => inputFile.click());
-    inputFile.addEventListener('change', () => {
-        const files = inputFile.files;
-        if (!files.length) {
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('fileList').classList.remove('has-files');
-            document.getElementById('fileList').innerHTML = '';
-            return;
-        }
-        const firstValid = Array.from(files).find(f => f.type.match(/^image\/(jpeg|png|webp)$/) && f.size <= 10*1024*1024);
-        if (firstValid) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('filePreview').src = e.target.result;
-                document.getElementById('filePreview').style.display = 'block';
-            };
-            reader.readAsDataURL(firstValid);
-        } else {
-            document.getElementById('filePreview').style.display = 'none';
-        }
-        const baseTitle = inputTitle.value.trim();
-        let listHtml = `<div style="font-weight:600;">已选 ${files.length} 张</div>`;
-        for (let i = 0; i < files.length; i++) {
-            const f = files[i];
-            const key = f.name + '_' + f.size;
-            listHtml += `<div class="file-list-item">
-                <span>${f.name}</span>
-                <input class="custom-title-input" data-file-key="${key}" placeholder="标题" value="${baseTitle}" style="width:100px;">
-            </div>`;
-        }
-        document.getElementById('fileList').innerHTML = listHtml;
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeLightbox(); document.querySelectorAll('.modal-overlay.active').forEach(o=>{ o.classList.remove('active'); document.body.style.overflow=''; }); } });
+
+    // 文件拖拽
+    const fileArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('inputFile');
+    fileArea.onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+        const files = fileInput.files;
+        if(!files.length) { document.getElementById('filePreview').style.display='none'; document.getElementById('fileList').classList.remove('has-files'); return; }
+        const first = Array.from(files).find(f => f.type.match(/^image\/(jpeg|png|webp)$/) && f.size<=10*1024*1024);
+        if(first){ const r=new FileReader(); r.onload=e=>{ document.getElementById('filePreview').src=e.target.result; document.getElementById('filePreview').style.display='block'; }; r.readAsDataURL(first); }
+        let html = `<div style="font-weight:600;">已选 ${files.length} 张图片：</div>`;
+        for(let i=0;i<files.length;i++){ const f=files[i]; html+=`<div class="file-list-item"><span>${f.name}</span><input class="custom-title-input" data-file-key="${f.name}_${f.size}" placeholder="留空则无标题"></div>`; }
+        document.getElementById('fileList').innerHTML = html;
         document.getElementById('fileList').classList.add('has-files');
-    });
-    fileUploadArea.addEventListener('dragover', e => { e.preventDefault(); fileUploadArea.classList.add('dragover'); });
-    fileUploadArea.addEventListener('dragleave', () => fileUploadArea.classList.remove('dragover'));
-    fileUploadArea.addEventListener('drop', e => {
-        e.preventDefault();
-        fileUploadArea.classList.remove('dragover');
+    };
+    fileArea.addEventListener('dragover', e => { e.preventDefault(); fileArea.classList.add('dragover'); });
+    fileArea.addEventListener('dragleave', () => fileArea.classList.remove('dragover'));
+    fileArea.addEventListener('drop', e => {
+        e.preventDefault(); fileArea.classList.remove('dragover');
         const dt = new DataTransfer();
-        for (let i = 0; i < inputFile.files.length; i++) dt.items.add(inputFile.files[i]);
-        for (let i = 0; i < e.dataTransfer.files.length; i++) dt.items.add(e.dataTransfer.files[i]);
-        inputFile.files = dt.files;
-        inputFile.dispatchEvent(new Event('change'));
+        for(let i=0;i<fileInput.files.length;i++) dt.items.add(fileInput.files[i]);
+        for(let i=0;i<e.dataTransfer.files.length;i++) dt.items.add(e.dataTransfer.files[i]);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
     });
 
-    // 键盘退出
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-            closeLightbox();
-            document.querySelectorAll('.modal-overlay.active').forEach(o => {
-                o.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-        }
-    });
-
-    // 初始加载
     loadSubmissions(true);
+    startAutoSync();
 </script>
 </body>
 </html>
