@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
-    <!-- 版本：2026.08.04-完整注释版 -->
+    <!-- 版本：2026.08.09-下载修复 -->
     <link rel="manifest" href="/manifest.json">
 
     <!-- ==================== 第三方库 ==================== -->
@@ -703,7 +703,6 @@
         <div class="hero-image-wrapper">
             <div class="hero-image-glow"></div>
             <div class="hero-image-frame" id="heroImageFrame">
-                <!-- 若 hero.jpg 不存在，显示文字占位 -->
                 <img src="./1.jpg" alt="杀生鱼丸" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=color:#6B5544;font-weight:bold;>🐱 鱼丸的小屋</div>'">
             </div>
         </div>
@@ -935,10 +934,10 @@
     let existingServerCode = null;
     let retryFiles = [];
     let syncInterval = null;
-    let galleryScrollY = 0;   // 记录离开小屋时的滚动位置
+    let galleryScrollY = 0;
 
     // ==================== 工具函数 ====================
-    /** HTML 转义，防止 XSS */
+    /** HTML 转义，防止 XSS（仅用于 HTML 文本内容，不用于属性） */
     function escapeHtml(str) {
         if (!str) return '';
         return String(str)
@@ -1058,11 +1057,8 @@
     // ==================== 数据加载与渲染 ====================
     /** 更新统计数字（从数据库查询总数） */
     async function updateStats() {
-        // 获取图片总数
         const { count: totalImages } = await sb.from('submissions').select('*', { count: 'exact', head: true });
-        // 获取留言总数
         const { count: totalMessages } = await sb.from('messages').select('*', { count: 'exact', head: true });
-        // 投稿人数：基于已加载图片去重（虽然不能全局，但足够反映）
         const uniqueAuthors = new Set(submissionImages.map(img => `${img.author}::${img.user_code}`));
 
         document.getElementById('heroTotalImages').textContent = totalImages || 0;
@@ -1130,10 +1126,11 @@
 
             let actions = '';
             if (isSub) {
-                if (adminMode) actions += `<button class="card-action-btn delete-btn" onclick="deleteImageAdmin('${img.id}')">🔧</button>`;
-                else if (isMine) actions += `<button class="card-action-btn delete-btn" onclick="deleteOwnImage('${img.id}')">✕</button>`;
+                if (adminMode) actions += `<button class="card-action-btn delete-btn" data-delete-id="${img.id}">🔧</button>`;
+                else if (isMine) actions += `<button class="card-action-btn delete-btn" data-delete-id="${img.id}">✕</button>`;
             }
-            if (!selectMode) actions += `<button class="card-action-btn" onclick="downloadSingle('${escapeHtml(img.src)}')">⬇</button>`;
+            // 下载按钮：使用 data-download-url 存储原始 URL，避免内联 onclick 中的转义问题
+            if (!selectMode) actions += `<button class="card-action-btn download-btn" data-download-url="${img.src.replace(/"/g, '&quot;')}">⬇</button>`;
 
             const card = document.createElement('div');
             card.className = 'image-card';
@@ -1153,9 +1150,32 @@
         grid.appendChild(frag);
     }
 
-    // 事件委托处理卡片点击（无 eval）
+    // ==================== 统一事件委托（处理下载、删除、卡片点击） ====================
     document.getElementById('galleryGrid').addEventListener('click', function(e) {
-        if (e.target.closest('button, .card-action-btn')) return;
+        // 处理下载按钮
+        const downloadBtn = e.target.closest('.download-btn');
+        if (downloadBtn) {
+            e.stopPropagation(); // 阻止事件冒泡到卡片，避免打开灯箱
+            const url = downloadBtn.getAttribute('data-download-url');
+            if (url) downloadImage(url);
+            return;
+        }
+
+        // 处理删除按钮（管理员或本人）
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+            e.stopPropagation();
+            const id = deleteBtn.getAttribute('data-delete-id');
+            if (!id) return;
+            if (adminMode) {
+                deleteImageAdmin(id);
+            } else {
+                deleteOwnImage(id);
+            }
+            return;
+        }
+
+        // 处理复选框
         if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
             const idx = parseInt(e.target.getAttribute('data-index'), 10);
             if (!isNaN(idx)) {
@@ -1165,6 +1185,8 @@
             }
             return;
         }
+
+        // 处理卡片点击（灯箱或选择模式）
         const card = e.target.closest('.image-card');
         if (!card) return;
         const index = parseInt(card.getAttribute('data-index'), 10);
@@ -1176,6 +1198,26 @@
             if (url) openLightbox(url);
         }
     });
+
+    /** 下载单张图片（Blob 方式，更可靠） */
+    async function downloadImage(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = ''; // 浏览器自动提取文件名
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(objectUrl);
+            showToast('✅ 下载已开始');
+        } catch (err) {
+            // 降级方案：直接打开链接（适用于跨域图片等）
+            window.open(url, '_blank');
+        }
+    }
 
     // 无限滚动
     const imgObserver = new IntersectionObserver(entries => {
@@ -1250,15 +1292,6 @@
     });
 
     // ==================== 下载与多选 ====================
-    window.downloadSingle = url => {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    };
-
     async function downloadSelected() {
         if (!selectedIndices.size) return showToast('请先选择图片');
         showToast('📦 打包中...');
@@ -1340,7 +1373,7 @@
     document.getElementById('btnLightboxClose').onclick = closeLightbox;
     document.getElementById('btnLightboxDownload').onclick = () => {
         const src = document.getElementById('lightboxImage').src;
-        if (src) window.downloadSingle(src);
+        if (src) downloadImage(src);
     };
     document.getElementById('lightboxOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeLightbox();
@@ -1457,7 +1490,7 @@
     });
 
     // ==================== 删除操作 ====================
-    window.deleteImageAdmin = async id => {
+    async function deleteImageAdmin(id) {
         const res = await showConfirm('确定永久删除该投稿吗？', { title: '管理员删除' });
         if (!res.confirmed) return;
         if (!adminPassword) return showToast('管理员身份已失效');
@@ -1469,9 +1502,9 @@
         showToast('🗑️ 已删除');
         loadSubmissions(true);
         updateStats();
-    };
+    }
 
-    window.deleteMessageAdmin = async id => {
+    async function deleteMessageAdmin(id) {
         const res = await showConfirm('确定永久删除该留言吗？', { title: '管理员删除' });
         if (!res.confirmed) return;
         if (!adminPassword) return showToast('管理员身份已失效');
@@ -1480,9 +1513,9 @@
         showToast('🗑️ 已删除');
         loadMessages(true);
         updateStats();
-    };
+    }
 
-    window.deleteOwnImage = async id => {
+    async function deleteOwnImage(id) {
         const res = await showConfirm('确定删除您的投稿吗？', { title: '删除投稿' });
         if (!res.confirmed) return;
         const profile = getProfile();
@@ -1495,9 +1528,9 @@
         showToast('🗑️ 已删除');
         loadSubmissions(true);
         updateStats();
-    };
+    }
 
-    window.deleteOwnMessage = async id => {
+    async function deleteOwnMessage(id) {
         const res = await showConfirm('确定删除您的留言吗？', { title: '删除留言' });
         if (!res.confirmed) return;
         const profile = getProfile();
@@ -1506,7 +1539,13 @@
         showToast('🗑️ 已删除');
         loadMessages(true);
         updateStats();
-    };
+    }
+
+    // 将函数暴露到全局（供内联 onclick 调用，但已不再使用内联，保留以防兼容）
+    window.deleteImageAdmin = deleteImageAdmin;
+    window.deleteMessageAdmin = deleteMessageAdmin;
+    window.deleteOwnImage = deleteOwnImage;
+    window.deleteOwnMessage = deleteOwnMessage;
 
     // ==================== 管理员模式 ====================
     async function enterAdminMode() {
@@ -1731,7 +1770,7 @@
     document.getElementById('btnLightboxClose').onclick = closeLightbox;
     document.getElementById('btnLightboxDownload').onclick = () => {
         const src = document.getElementById('lightboxImage').src;
-        if (src) window.downloadSingle(src);
+        if (src) downloadImage(src);
     };
     document.getElementById('btnOpenAbout').onclick = () => {
         document.getElementById('aboutModalOverlay').classList.add('active');
@@ -1809,7 +1848,7 @@
     // ==================== 启动 ====================
     loadSubmissions(true);
     startAutoSync();
-    console.log('鱼丸的小屋 · 版本 2026.08.04-完整注释版 已启动');
+    console.log('鱼丸的小屋 · 版本 2026.08.09-下载修复 已启动');
 </script>
 </body>
 </html>
