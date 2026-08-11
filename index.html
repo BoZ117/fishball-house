@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>鱼丸的小屋</title>
-    <!-- 版本：2026.08.11-完整版 -->
+    <!-- 版本：2026.08.11-完整SW修复 -->
     <link rel="manifest" href="/manifest.json">
     <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -192,6 +192,7 @@
 <body>
 <div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div><div class="bg-orb bg-orb-3"></div>
 <div class="app-container">
+    <!-- 首页 -->
     <section class="hero-section" id="heroSection">
         <h1 class="hero-title" id="heroTitle">鱼丸的小屋</h1>
         <p class="hero-subtitle" id="heroSubtitle">✨ 温馨 · 分享 · 珍藏 ✨</p>
@@ -206,6 +207,7 @@
         <button class="btn-enter" id="btnEnter">进入小屋 →</button>
     </section>
 
+    <!-- 图库 -->
     <section class="gallery-section" id="gallerySection">
         <nav class="gallery-nav">
             <button class="btn btn-back" id="btnBack">← 返回</button>
@@ -235,6 +237,7 @@
         </div>
     </section>
 
+    <!-- 留言板 -->
     <section class="message-section" id="messageSection">
         <nav class="gallery-nav">
             <button class="btn btn-back" id="btnBackFromMessages">← 返回小屋</button>
@@ -354,7 +357,13 @@
 
     window.onerror = (msg,url,line) => { console.error(msg); showToast('⚠️ 页面错误，请刷新'); };
     window.addEventListener('unhandledrejection', e => { console.error(e.reason); showToast('⚠️ 网络异常'); });
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(reg => reg.update());
+
+    // ===== 修复 SW 注册 =====
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            .then(reg => reg.update().catch(() => {}))
+            .catch(() => {});
+    }
 
     // ==================== 全局状态 ====================
     const PROFILE_KEY = 'fishball_profile', CODE_KEY = 'fishball_user_code', DRAFT_KEY = 'fishball_draft';
@@ -429,7 +438,6 @@
         if(reset) { currentPage=0; submissionImages=[]; hasMoreImages=true; document.getElementById('galleryGrid').innerHTML = ''; }
         if(!hasMoreImages || isLoadingImages) return;
 
-        // 滚动位置补偿：记录第一个卡片的视口位置
         const grid = document.getElementById('galleryGrid');
         const firstCardBefore = grid.querySelector('.image-card');
         const offsetBefore = firstCardBefore ? firstCardBefore.getBoundingClientRect().top : 0;
@@ -450,7 +458,6 @@
         updateStats();
         document.getElementById('loadMoreTrigger').textContent = hasMoreImages ? '加载更多...' : '没有更多了';
 
-        // 补偿滚动偏移
         if (!reset) {
             const firstCardAfter = grid.querySelector('.image-card');
             const offsetAfter = firstCardAfter ? firstCardAfter.getBoundingClientRect().top : 0;
@@ -598,7 +605,6 @@
         } catch { window.open(url, '_blank'); }
     }
 
-    // 无限滚动
     const imgObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting && hasMoreImages && !isLoadingImages) loadSubmissions(false); }, {threshold:0.1});
     imgObserver.observe(document.getElementById('loadMoreTrigger'));
 
@@ -642,7 +648,7 @@
         updateStats();
     });
 
-    // 下载与多选
+    // 多选下载
     async function downloadSelected() {
         if(!selectedIndices.size) return showToast('请先选择图片');
         showToast('📦 打包中...');
@@ -656,32 +662,10 @@
         showToast('✅ 下载完成');
         cancelSelectMode();
     }
-    function toggleSelectMode() {
-        selectMode = !selectMode;
-        if (selectMode) {
-            selectedIndices.clear();
-            document.getElementById('galleryGrid').classList.add('select-mode');
-            document.getElementById('btnSelectDownload').style.display = 'none';
-            document.getElementById('btnCancelSelect').style.display = '';
-            document.getElementById('btnDownloadSelected').style.display = '';
-            updateSelectedCount();
-        } else cancelSelectMode();
-        renderGallery();
-    }
-    function cancelSelectMode() {
-        selectMode = false; selectedIndices.clear();
-        document.getElementById('galleryGrid').classList.remove('select-mode');
-        document.getElementById('btnSelectDownload').style.display = '';
-        document.getElementById('btnCancelSelect').style.display = 'none';
-        document.getElementById('btnDownloadSelected').style.display = 'none';
-        renderGallery();
-    }
+    function toggleSelectMode() { selectMode = !selectMode; if (selectMode) { selectedIndices.clear(); document.getElementById('galleryGrid').classList.add('select-mode'); document.getElementById('btnSelectDownload').style.display = 'none'; document.getElementById('btnCancelSelect').style.display = ''; document.getElementById('btnDownloadSelected').style.display = ''; updateSelectedCount(); } else cancelSelectMode(); renderGallery(); }
+    function cancelSelectMode() { selectMode = false; selectedIndices.clear(); document.getElementById('galleryGrid').classList.remove('select-mode'); document.getElementById('btnSelectDownload').style.display = ''; document.getElementById('btnCancelSelect').style.display = 'none'; document.getElementById('btnDownloadSelected').style.display = 'none'; renderGallery(); }
     function updateSelectedCount() { document.getElementById('btnDownloadSelected').textContent = `下载选中 (${selectedIndices.size})`; }
-    window.toggleSelectImage = function(idx) {
-        selectedIndices.has(idx) ? selectedIndices.delete(idx) : selectedIndices.add(idx);
-        updateSelectedCount();
-        updateSelectedBar();
-    };
+    window.toggleSelectImage = function(idx) { selectedIndices.has(idx) ? selectedIndices.delete(idx) : selectedIndices.add(idx); updateSelectedCount(); updateSelectedBar(); };
 
     // 灯箱
     function openLightbox(url) { if(selectMode) return; document.getElementById('lightboxImage').src=url; document.getElementById('lightboxOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
@@ -799,7 +783,7 @@
     window.deleteImageAdmin = deleteImageAdmin; window.deleteMessageAdmin = deleteMessageAdmin;
     window.deleteOwnImage = deleteOwnImage; window.deleteOwnMessage = deleteOwnMessage;
 
-    // 管理员模式
+    // 管理员
     async function enterAdminMode() {
         const res = await showConfirm('请输入管理员密码',{title:'管理员验证',requirePassword:true});
         if(!res.confirmed||!res.password) return;
@@ -819,7 +803,7 @@
         if(document.getElementById('messageSection').classList.contains('active')) loadMessages(true);
     }
 
-    // 个人主页与同步
+    // 个人主页
     async function checkAuthorExists(name) { const { data } = await sb.rpc('lookup_profile_code',{p_author:name.trim()}); return data; }
     async function syncProfileFromServer() {
         const profile = getProfile(); if(!profile.code) return;
@@ -844,9 +828,7 @@
         document.body.style.overflow = 'hidden';
     }
     function closeProfileModal() { document.getElementById('profileModalOverlay').classList.remove('active'); document.body.style.overflow = ''; }
-    document.getElementById('copyCodeBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText(document.getElementById('profileCode').value).then(() => showToast('✅ 专属码已复制'));
-    });
+    document.getElementById('copyCodeBtn').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('profileCode').value).then(() => showToast('✅ 专属码已复制')); });
     async function updateProfileStats() {
         const profile = getProfile();
         if(!profile.author || !profile.code) { document.getElementById('profileSubmissions').textContent='0'; document.getElementById('profileMessages').textContent='0'; return; }
@@ -907,7 +889,7 @@
         closeProfileModal(); loadSubmissions(true);
     });
 
-    // 导航事件
+    // 导航
     document.getElementById('btnAdminMode').onclick = () => adminMode ? exitAdminMode() : enterAdminMode();
     document.getElementById('btnAdminModeMsg').onclick = () => adminMode ? exitAdminMode() : enterAdminMode();
     document.getElementById('btnEnter').onclick = () => {
@@ -919,33 +901,12 @@
             window.scrollTo(0,0); startAutoSync(); updateStats();
         },350);
     };
-    document.getElementById('btnBack').onclick = () => {
-        document.getElementById('gallerySection').classList.remove('active');
-        document.getElementById('gallerySection').style.display='none';
-        document.getElementById('heroSection').style.display='flex';
-        document.getElementById('heroSection').classList.remove('fade-out');
-    };
-    document.getElementById('btnOpenMessages').onclick = () => {
-        galleryScrollY = window.scrollY;
-        document.getElementById('gallerySection').classList.remove('active');
-        document.getElementById('gallerySection').style.display='none';
-        document.getElementById('messageSection').classList.add('active');
-        document.getElementById('messageSection').style.display='block';
-        loadMessages(true); window.scrollTo(0,0);
-    };
-    document.getElementById('btnBackFromMessages').onclick = () => {
-        document.getElementById('messageSection').classList.remove('active');
-        document.getElementById('messageSection').style.display='none';
-        document.getElementById('gallerySection').classList.add('active');
-        document.getElementById('gallerySection').style.display='block';
-        setTimeout(() => window.scrollTo(0, galleryScrollY), 50);
-    };
-    document.getElementById('btnOpenProfile').onclick = openProfileModal;
-    document.getElementById('btnProfileClose').onclick = closeProfileModal;
-    document.getElementById('btnOpenSubmit').onclick = openSubmitModal;
-    document.getElementById('btnModalClose').onclick = closeSubmitModal;
-    document.getElementById('btnLightboxClose').onclick = closeLightbox;
-    document.getElementById('btnLightboxDownload').onclick = () => { const src = document.getElementById('lightboxImage').src; if(src) downloadImage(src); };
+    document.getElementById('btnBack').onclick = () => { document.getElementById('gallerySection').classList.remove('active'); document.getElementById('gallerySection').style.display='none'; document.getElementById('heroSection').style.display='flex'; document.getElementById('heroSection').classList.remove('fade-out'); };
+    document.getElementById('btnOpenMessages').onclick = () => { galleryScrollY = window.scrollY; document.getElementById('gallerySection').classList.remove('active'); document.getElementById('gallerySection').style.display='none'; document.getElementById('messageSection').classList.add('active'); document.getElementById('messageSection').style.display='block'; loadMessages(true); window.scrollTo(0,0); };
+    document.getElementById('btnBackFromMessages').onclick = () => { document.getElementById('messageSection').classList.remove('active'); document.getElementById('messageSection').style.display='none'; document.getElementById('gallerySection').classList.add('active'); document.getElementById('gallerySection').style.display='block'; setTimeout(() => window.scrollTo(0, galleryScrollY), 50); };
+    document.getElementById('btnOpenProfile').onclick = openProfileModal; document.getElementById('btnProfileClose').onclick = closeProfileModal;
+    document.getElementById('btnOpenSubmit').onclick = openSubmitModal; document.getElementById('btnModalClose').onclick = closeSubmitModal;
+    document.getElementById('btnLightboxClose').onclick = closeLightbox; document.getElementById('btnLightboxDownload').onclick = () => { const src = document.getElementById('lightboxImage').src; if(src) downloadImage(src); };
     document.getElementById('btnOpenAbout').onclick = () => { document.getElementById('aboutModalOverlay').classList.add('active'); document.body.style.overflow='hidden'; };
     document.getElementById('btnAboutClose').onclick = () => { document.getElementById('aboutModalOverlay').classList.remove('active'); document.body.style.overflow=''; };
     document.getElementById('btnSelectDownload').onclick = toggleSelectMode;
@@ -977,7 +938,7 @@
     });
 
     loadSubmissions(true); startAutoSync();
-    console.log('鱼丸的小屋 · 版本 2026.08.11-完整版 已启动');
+    console.log('鱼丸的小屋 · 版本 2026.08.11-完整SW修复 已启动');
 </script>
 </body>
 </html>
