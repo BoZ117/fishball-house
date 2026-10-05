@@ -73,7 +73,7 @@ body::before {
     position: fixed; inset: 0; z-index: 99999;
     background: linear-gradient(180deg, #1a1a1a 0%, #232323 100%);
     display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.7s ease, visibility 0.7s ease;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
 }
 .loader-overlay.hide { opacity: 0; visibility: hidden; pointer-events: none; }
 .loader-content { text-align: center; }
@@ -220,7 +220,7 @@ body::before {
 .gallery-nav-actions {
     display:flex; align-items:center; gap:6px;
     margin-left:auto; flex-wrap:nowrap; overflow-x:auto;
-    max-width:75%; -webkit-overflow-scrolling:touch;
+    max-width:78%; -webkit-overflow-scrolling:touch;
 }
 .gallery-nav-actions .btn {
     border: 1px solid rgba(255,255,255,0.28);
@@ -315,7 +315,7 @@ body::before {
     font-family: var(--sans);
 }
 
-/* ===== 瀑布流（桌面 5 列 / 平板 3 列 / 手机 2 列） ===== */
+/* ===== 瀑布流 ===== */
 .gallery-grid {
     column-count: 5;
     column-gap: 14px;
@@ -398,10 +398,11 @@ body::before {
     font-size: 0.55rem; padding: 1px 6px; border-radius: 8px; margin-left: 4px;
     letter-spacing: 0.05em;
 }
-.badge-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.badge-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; gap: 6px; }
 .badge { font-size: 0.58rem; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; }
 .badge-preset { background: rgba(197,165,90,0.12); color: var(--gold); }
 .badge-submission { background: rgba(192,108,132,0.1); color: var(--pink); }
+.badge-pending { background: rgba(243,156,18,0.15); color: #e67e22; }
 .image-card-actions {
     display: flex; justify-content: flex-end; gap: 6px;
     margin-top: 8px; padding-top: 6px;
@@ -419,9 +420,6 @@ body::before {
 [data-theme="dark"] .card-action-btn {
     background: rgba(212,132,154,0.15);
     color: #f0c3d0;
-}
-[data-theme="dark"] .card-action-btn:hover {
-    background: rgba(212,132,154,0.25);
 }
 .card-action-btn:active { transform: scale(0.9); background: rgba(192,108,132,0.2); }
 .card-action-btn.delete-btn { color: #c0392b; background: rgba(192,57,43,0.08); }
@@ -650,6 +648,7 @@ body::before {
     backdrop-filter: blur(20px);
     display: none; align-items: center; justify-content: center;
     padding: 24px;
+    transition: background 0.6s ease;
 }
 .lightbox-overlay.active { display: flex; }
 .lightbox-content { position: relative; width: 100%; max-width: 1000px; }
@@ -818,7 +817,8 @@ body::before {
 }
 .upload-progress-text {
     font-size: 0.72rem; color: var(--text-muted);
-    text-align: right; margin-top: 4px;
+    text-align: right; margin-top: 6px;
+    display: flex; justify-content: space-between;
 }
 
 /* ===== 其他 ===== */
@@ -876,6 +876,100 @@ body::before {
 .ring-fill { stroke: #fff; transition: stroke-dashoffset 0.1s linear; }
 .btn-scroll-top > span { position: relative; z-index: 1; font-size: 1rem; }
 
+/* ===== 管理面板 ===== */
+.admin-section {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(192,108,132,0.15);
+}
+.admin-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+.admin-user-list {
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
+    background: var(--cream);
+}
+.admin-user-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    font-size: 0.82rem;
+}
+.admin-user-row:last-child { border-bottom: none; }
+.admin-user-info { min-width: 0; }
+.admin-user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.admin-user-code {
+    font-family: monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+}
+.admin-user-stats {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.admin-user-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.admin-mini-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.admin-mini-btn.primary {
+    background: rgba(192,108,132,0.1);
+    color: var(--pink);
+}
+.admin-mini-btn.primary:hover { background: rgba(192,108,132,0.2); }
+.admin-mini-btn.danger {
+    background: rgba(192,57,43,0.08);
+    color: #c0392b;
+}
+.admin-mini-btn.danger:hover { background: rgba(192,57,43,0.18); }
+.admin-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.orphan-item {
+    padding: 6px 10px;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    word-break: break-all;
+}
+.orphan-item:last-child { border-bottom: none; }
+
 /* ===== 响应式 ===== */
 @media (max-width: 1199px) and (min-width: 768px) {
     .gallery-grid { column-count: 3; column-gap: 14px; padding: 0 20px; }
@@ -886,7 +980,7 @@ body::before {
     .gallery-nav { padding:10px 16px; }
     .gallery-nav.scrolled { padding:8px 16px; }
     .gallery-nav-title { font-size:0.9rem; }
-    .gallery-nav-actions { max-width:70%; }
+    .gallery-nav-actions { max-width:72%; }
     .gallery-nav-actions .btn { padding:5px 10px; font-size:0.7rem; }
     .stats-bar { margin:16px auto 28px; padding:0 16px; }
     .stats-bar strong { font-size:1.3rem; }
@@ -944,12 +1038,14 @@ body::before {
             <div class="gallery-nav-actions">
                 <button class="btn" id="btnOpenProfile">我的</button>
                 <button class="btn" id="btnOpenSubmit">投稿</button>
-                <button class="btn" id="btnSelectDownload">多选下载</button>
+                <button class="btn" id="btnSelectDownload">多选</button>
                 <button class="btn btn-danger" id="btnCancelSelect" style="display:none;">取消</button>
                 <button class="btn btn-primary" id="btnDownloadSelected" style="display:none;">下载(0)</button>
+                <button class="btn btn-danger" id="btnDeleteSelected" style="display:none;">删除(0)</button>
                 <button class="btn" id="btnOpenMessages">故事集</button>
                 <button class="btn" id="btnOpenAbout">关于</button>
                 <button class="btn" id="themeToggle">主题</button>
+                <button class="btn" id="btnAdminPanel" style="display:none;">管理</button>
                 <button class="btn btn-danger" id="btnExitAdmin" style="display:none;">退出管理</button>
             </div>
         </nav>
@@ -1029,7 +1125,10 @@ body::before {
                 <div class="file-list" id="fileList"></div>
                 <div class="upload-progress" id="uploadProgress" style="display:none;">
                     <div class="upload-progress-bar"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
-                    <div class="upload-progress-text" id="uploadProgressText">0 / 0</div>
+                    <div class="upload-progress-text">
+                        <span id="uploadProgressText">0 / 0</span>
+                        <span id="uploadProgressEta"></span>
+                    </div>
                 </div>
             </div>
             <button type="submit" class="form-submit" id="btnSubmitForm">✨ 提交投稿</button>
@@ -1056,12 +1155,18 @@ body::before {
             <div class="form-group">
                 <label class="form-label">专属码</label>
                 <input class="form-input" id="profileCode" maxlength="20" placeholder="自动生成">
+                <span style="font-size:0.68rem;color:#c0392b;margin-top:4px;display:block;">
+                    ⚠️ 不要修改此码，除非你确定要更换；修改后旧码将失效
+                </span>
                 <span style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;display:block;" id="codeHint">换设备时输入此码同步身份</span>
                 <button type="button" class="btn btn-primary" id="copyCodeBtn" style="display:none; margin-top:8px; padding:8px 16px; font-size:0.78rem; border-radius:20px; border:none; background:linear-gradient(135deg,var(--pink),var(--pink-light)); color:#fff; cursor:pointer;">📋 复制</button>
             </div>
             <div id="verificationArea" style="display:none;" class="verification-group">
                 <p style="font-size:0.8rem;color:#c0392b;">⚠️ 昵称已注册，请输入专属码验证</p>
                 <input class="form-input" id="verifyCode" placeholder="专属码">
+                <p style="font-size:0.72rem;color:var(--text-muted);margin-top:8px;">
+                    忘了专属码？如果你下载过身份备份文件，打开它就能找到。
+                </p>
             </div>
             <button type="submit" class="form-submit">💾 保存信息</button>
         </form>
@@ -1160,6 +1265,55 @@ body::before {
     </div>
 </div>
 
+<!-- 管理面板 -->
+<div class="modal-overlay" id="adminPanelOverlay">
+    <div class="modal-dialog" style="max-width: 720px;">
+        <button class="modal-close" id="btnAdminPanelClose">✕</button>
+        <h2 style="font-family: var(--serif); text-align: center; margin-bottom: 8px;">管理面板</h2>
+
+        <div class="admin-section">
+            <div class="admin-section-title">
+                <span>👥 用户管理</span>
+                <button class="btn btn-primary" id="btnLoadUsers" style="padding: 4px 12px; font-size: 0.75rem;">刷新</button>
+            </div>
+            <div id="adminUserList" class="admin-user-list">
+                <div class="admin-empty">点击「刷新」加载用户列表</div>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">
+                <span>🗂️ 孤儿文件清理</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 6px 0 12px;">
+                扫描 Storage 中已上传但数据库未引用的文件（比如上传成功但保存失败的残留）
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary" id="btnScanOrphans" style="padding: 6px 16px; font-size: 0.8rem;">🔍 扫描</button>
+                <button class="btn btn-danger" id="btnDeleteOrphans" style="padding: 6px 16px; font-size: 0.8rem; display:none;">🗑️ 删除全部</button>
+            </div>
+            <div id="orphanResult" style="margin-top: 12px;"></div>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">
+                <span>🔍 内容审核</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span id="reviewModeStatus" style="font-size:0.72rem;color:var(--text-muted);">…</span>
+                    <button class="btn btn-primary" id="btnToggleReview" style="padding: 4px 12px; font-size: 0.72rem;">切换</button>
+                    <button class="btn btn-primary" id="btnLoadPending" style="padding: 4px 12px; font-size: 0.72rem;">刷新</button>
+                </div>
+            </div>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin: 6px 0 10px;">
+                开启后，用户新提交的投稿和故事需管理员审核通过才会公开显示
+            </p>
+            <div id="adminPendingList" class="admin-user-list">
+                <div class="admin-empty">点击「刷新」加载待审核内容</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="selected-bar" id="selectedBar"></div>
 <button class="btn-scroll-top" id="btnScrollTop">
     <svg class="scroll-ring" viewBox="0 0 46 46">
@@ -1175,13 +1329,13 @@ body::before {
 <script>
 // ==================== Supabase 初始化 ====================
 const supabaseUrl = 'https://jiqwlxyspqylgpnsjvnq.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppcXdseHlzcHF5bGdwbnNqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMDg0MDQsImV4cCI6MjEwMDg4NDQwNH0.J7kfxF4NvCPzGy-q5x1Ff6kX4ixc2McaxQE29gFQTVw';
+const supabaseKey = 'sb_publishable_wlW-UzdwOij02Dl41j8kgQ_vQdhekoZ';
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ==================== 全局状态 ====================
 const PROFILE_KEY = 'fishball_profile', CODE_KEY = 'fishball_user_code', DRAFT_KEY = 'fishball_draft';
-const PAGE_SIZE = 20;
-const MSG_PAGE_SIZE = 20;
+const PAGE_SIZE = 9999;
+const MSG_PAGE_SIZE = 9999;
 const PRESET_IMAGES = [];
 const UPLOAD_CONCURRENCY = 4;
 
@@ -1189,19 +1343,26 @@ let submissionImages = [], adminMode = false, adminPassword = null;
 let selectMode = false, selectedIndices = new Set();
 let lastCursorId = null, hasMoreImages = true, isLoadingImages = false;
 let lastMsgId = null, hasMoreMessages = true, isLoadingMessages = false;
-let existingServerCode = null, retryFiles = [], syncInterval = null, galleryScrollY = 0;
+let existingServerCode = null, retryFiles = [], syncInterval = null;
 let likeCounts = {}, likesRequested = new Set();
 let myLikes = new Set();
 let adminClickCount = 0, adminClickTimer = null;
 let storiesStore = {};
 let lightboxSwiper = null;
+let reviewModeOn = false;
+let adminPanelUsers = [];
+let profileChannel = null;
 
-// 统计改 exact
+const backfilledIds = new Set();
+let scrollSpeed = 0;
+let lastScrollY = window.scrollY;
+let lastScrollTime = Date.now();
+
 const statsPromise = (async () => {
     try {
         const [{ count: totalImages }, { count: totalMessages }] = await Promise.all([
-            sb.from('submissions').select('*', { count: 'exact', head: true }),
-            sb.from('messages').select('*', { count: 'exact', head: true })
+            sb.from('submissions').select('*', { count: 'exact', head: true }).eq('approved', true),
+            sb.from('messages').select('*', { count: 'exact', head: true }).eq('approved', true)
         ]);
         return { totalImages: totalImages || 0, totalMessages: totalMessages || 0 };
     } catch (e) {
@@ -1220,25 +1381,34 @@ function loadDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) 
 function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
 function showToast(msg) { const t = document.createElement('div'); t.className='toast'; t.textContent=msg; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>t.remove(),2400); }
 
+function formatETA(seconds) {
+    if (seconds < 5) return '即将完成';
+    if (seconds < 60) return `约 ${seconds} 秒`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m < 60) return `约 ${m} 分 ${s} 秒`;
+    return `约 ${Math.floor(m/60)} 时 ${m%60} 分`;
+}
+
 async function processImageFile(file) {
     if (typeof createImageBitmap === 'function') {
         try {
             const bitmap = await createImageBitmap(file);
             const naturalW = bitmap.width;
             const naturalH = bitmap.height;
-            const thumbBlob = await drawToBlob(bitmap, 300, 0.7);
-            const originalBlob = await drawToBlob(bitmap, 1200, 0.8);
+            const thumbBlob = await drawToBlob(bitmap, 280, 0.65, 'image/webp');
+            const originalBlob = await drawToBlob(bitmap, 1200, 0.78);
             bitmap.close();
             return { width: naturalW, height: naturalH, thumbBlob, originalBlob };
         } catch (e) {}
     }
     const size = await getImageSize(file);
-    const thumbBlob = await compressImage(file, 300, 0.7);
-    const originalBlob = await compressImage(file, 1200, 0.8);
+    const thumbBlob = await compressImage(file, 280, 0.65, 'image/webp');
+    const originalBlob = await compressImage(file, 1200, 0.78);
     return { ...size, thumbBlob, originalBlob };
 }
 
-function drawToBlob(bitmap, maxW, quality) {
+function drawToBlob(bitmap, maxW, quality, mime = 'image/jpeg') {
     return new Promise((resolve, reject) => {
         let w = bitmap.width, h = bitmap.height;
         if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
@@ -1248,7 +1418,7 @@ function drawToBlob(bitmap, maxW, quality) {
         canvas.toBlob(blob => {
             if (blob) resolve(blob);
             else reject(new Error('压缩失败'));
-        }, 'image/jpeg', quality);
+        }, mime, quality);
     });
 }
 
@@ -1266,7 +1436,7 @@ function getImageSize(file) {
     });
 }
 
-function compressImage(file, maxW=1200, quality=0.8) {
+function compressImage(file, maxW=1200, quality=0.8, mime='image/jpeg') {
     return new Promise((resolve, reject) => {
         const img = new Image();
         const objectUrl = URL.createObjectURL(file);
@@ -1280,7 +1450,7 @@ function compressImage(file, maxW=1200, quality=0.8) {
             canvas.toBlob(blob => {
                 if (blob) resolve(blob);
                 else reject(new Error('压缩失败'));
-            }, 'image/jpeg', quality);
+            }, mime, quality);
         };
         img.onerror = (e) => { URL.revokeObjectURL(objectUrl); reject(e); };
         img.src = objectUrl;
@@ -1292,6 +1462,34 @@ async function calculateHash(file) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function extractDominantColor(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 32; canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 32, 32);
+                const data = ctx.getImageData(0, 0, 32, 32).data;
+                let r = 0, g = 0, b = 0, count = 0;
+                for (let i = 0; i < data.length; i += 16) {
+                    const pr = data[i], pg = data[i+1], pb = data[i+2];
+                    const lum = (pr + pg + pb) / 3;
+                    if (lum > 30 && lum < 220) {
+                        r += pr; g += pg; b += pb; count++;
+                    }
+                }
+                if (count === 0) return resolve(null);
+                resolve({ r: Math.floor(r / count), g: Math.floor(g / count), b: Math.floor(b / count) });
+            } catch (e) { resolve(null); }
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
 }
 
 function showConfirm(message, options={}) {
@@ -1418,6 +1616,7 @@ async function loadSubmissions(reset=true) {
         likesRequested.clear();
         myLikes.clear();
         likeCounts = {};
+        backfilledIds.clear();
     }
     if(!hasMoreImages || isLoadingImages) return;
     const grid = document.getElementById('galleryGrid');
@@ -1426,11 +1625,17 @@ async function loadSubmissions(reset=true) {
     isLoadingImages = true;
     document.getElementById('loadMoreTrigger').textContent = '加载中...';
 
+    const profileNow = getProfile();
     let query = sb.from('submissions')
-        .select('id, title, author, image_url, thumbnail_url, user_code, created_at, width, height')
+        .select('id, title, author, image_url, thumbnail_url, user_code, created_at, width, height, approved')
         .order('id', { ascending: false })
         .limit(PAGE_SIZE);
     if (lastCursorId !== null) query = query.lt('id', lastCursorId);
+    if (profileNow.code) {
+        query = query.or(`approved.eq.true,user_code.eq.${profileNow.code}`);
+    } else {
+        query = query.eq('approved', true);
+    }
 
     const { data, error } = await query;
     if(error) { showToast('加载投稿失败'); isLoadingImages = false; return; }
@@ -1446,7 +1651,8 @@ async function loadSubmissions(reset=true) {
         submittedAt: r.created_at,
         user_code: r.user_code || '',
         width: r.width || 0,
-        height: r.height || 0
+        height: r.height || 0,
+        approved: r.approved !== false
     }));
 
     if (reset) {
@@ -1474,7 +1680,6 @@ async function loadSubmissions(reset=true) {
     }
 }
 
-// ← 修复：401 不崩溃，Promise 包装
 async function loadLikeCounts() {
     const profile = getProfile();
     const newIds = submissionImages
@@ -1519,7 +1724,6 @@ async function loadLikeCounts() {
 
 function getAllImages() { return [...PRESET_IMAGES, ...submissionImages]; }
 
-// ===== 构建单张卡片 =====
 function buildImageCard(img, index, profile, curAuthor, curCode) {
     const isSub = img.id && img.id.startsWith('sub-');
     const subId = isSub ? img.id.replace('sub-','') : null;
@@ -1554,7 +1758,10 @@ function buildImageCard(img, index, profile, curAuthor, curCode) {
         <div class="image-card-info">
             ${img.title ? `<span class="image-card-title">${escapeHtml(img.title)}</span>` : ''}
             <span class="image-card-author">by ${escapeHtml(img.author)}${isMine?'<span class="my-tag">我的</span>':''}</span>
-            <div class="badge-row"><span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span></div>
+            <div class="badge-row">
+                <span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span>
+                ${isSub && !img.approved ? '<span class="badge badge-pending">⏳ 审核中</span>' : ''}
+            </div>
             <div class="image-card-actions">${actions}</div>
         </div>`;
     const imgEl = card.querySelector('img');
@@ -1563,8 +1770,8 @@ function buildImageCard(img, index, profile, curAuthor, curCode) {
         imgEl.classList.add('loaded');
         const sk = imgEl.previousElementSibling;
         if (sk) sk.style.display = 'none';
-        // ← 修复：sb.rpc 是 thenable，用 Promise.resolve 包装
-        if (isSub && !img.width && imgEl.naturalWidth > 0 && imgEl.naturalHeight > 0) {
+        if (isSub && !img.width && imgEl.naturalWidth > 0 && imgEl.naturalHeight > 0 && !backfilledIds.has(subId)) {
+            backfilledIds.add(subId);
             img.width = imgEl.naturalWidth;
             img.height = imgEl.naturalHeight;
             const numericId = parseInt(subId, 10);
@@ -1578,7 +1785,6 @@ function buildImageCard(img, index, profile, curAuthor, curCode) {
     return card;
 }
 
-// ===== 全量渲染 =====
 function renderGallery() {
     const grid = document.getElementById('galleryGrid');
     grid.innerHTML = '';
@@ -1601,9 +1807,9 @@ function renderGallery() {
     });
     grid.appendChild(frag);
     updateSelectedBar();
+    requestAnimationFrame(checkLazyImages);
 }
 
-// ===== 增量追加 =====
 function appendImageCards(newImages, startIndex) {
     const grid = document.getElementById('galleryGrid');
     const profile = getProfile();
@@ -1614,19 +1820,48 @@ function appendImageCards(newImages, startIndex) {
     });
     grid.appendChild(frag);
     updateSelectedBar();
+    requestAnimationFrame(checkLazyImages);
 }
 
-const lazyObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
+function checkLazyImages() {
+    const margin = Math.min(2000, Math.max(200, scrollSpeed * 1.5));
+    const vh = window.innerHeight;
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        const rect = img.getBoundingClientRect();
+        if (rect.top < vh + margin && rect.bottom > -margin) {
             img.src = img.dataset.src;
             img.removeAttribute('data-src');
-            lazyObserver.unobserve(img);
         }
     });
-}, { rootMargin: '300px' });
-function lazyLoadImage(img) { if (img.dataset.src) lazyObserver.observe(img); }
+}
+
+let scrollThrottleTimer = null;
+window.addEventListener('scroll', () => {
+    const now = Date.now();
+    const dt = now - lastScrollTime;
+    const dy = Math.abs(window.scrollY - lastScrollY);
+    if (dt > 0) scrollSpeed = scrollSpeed * 0.7 + (dy / dt * 1000) * 0.3;
+    lastScrollY = window.scrollY;
+    lastScrollTime = now;
+
+    if (scrollThrottleTimer) return;
+    scrollThrottleTimer = setTimeout(() => {
+        scrollThrottleTimer = null;
+        checkLazyImages();
+    }, 80);
+}, { passive: true });
+
+function lazyLoadImage(img) {
+    requestAnimationFrame(() => {
+        const rect = img.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 300 && rect.bottom > -300) {
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
+        }
+    });
+}
 
 // ==================== 图库点击 ====================
 const galleryGrid = document.getElementById('galleryGrid');
@@ -1751,11 +1986,17 @@ async function loadMessages(reset=true) {
     if(!hasMoreMessages || isLoadingMessages) return;
     isLoadingMessages = true;
 
+    const profileNow = getProfile();
     let query = sb.from('messages')
-        .select('id, author, content, show_author, user_code, created_at')
+        .select('id, author, content, show_author, user_code, created_at, approved')
         .order('id', { ascending: false })
         .limit(MSG_PAGE_SIZE);
     if (lastMsgId !== null) query = query.lt('id', lastMsgId);
+    if (profileNow.code) {
+        query = query.or(`approved.eq.true,user_code.eq.${profileNow.code}`);
+    } else {
+        query = query.eq('approved', true);
+    }
 
     const { data, error } = await query;
     if(error) { isLoadingMessages = false; return; }
@@ -1789,6 +2030,7 @@ async function loadMessages(reset=true) {
                 <div class="story-author">
                     <div class="story-avatar">${escapeHtml(initial)}</div>
                     <span>${escapeHtml(displayAuthor)}${isMine ? ' · 我的' : ''}</span>
+                    ${m.approved === false ? '<span class="badge badge-pending" style="margin-left:6px;">⏳ 审核中</span>' : ''}
                 </div>
                 <div class="story-time">${formatStoryTime(m.created_at)}</div>
             </div>`;
@@ -1874,7 +2116,7 @@ if (messageForm) messageForm.addEventListener('submit', async e => {
         author: profile.author, content, user_code: profile.code, show_author: !anon
     });
     if(error) return showToast('发布失败');
-    showToast('✨ 故事已发布');
+    showToast(reviewModeOn ? '📤 已提交，等待审核' : '✨ 故事已发布');
     closeStoryModal();
     loadMessages(true);
     updateStats();
@@ -1890,7 +2132,7 @@ if (msgContentEl) {
 document.getElementById('btnStoryClose').onclick = closeStoryModal;
 document.getElementById('btnNewStory').onclick = openStoryWrite;
 
-// ==================== 多选下载 ====================
+// ==================== 多选下载 / 批量删除 ====================
 async function downloadSelected() {
     if(!selectedIndices.size) return showToast('请先选择图片');
     showToast('📦 打包中...');
@@ -1904,6 +2146,63 @@ async function downloadSelected() {
     showToast('✅ 下载完成');
     cancelSelectMode();
 }
+
+async function deleteSelected() {
+    if (!selectedIndices.size) return showToast('请先选择图片');
+    const profile = getProfile();
+    const all = getAllImages();
+    
+    const deletable = [];
+    const notAllowed = [];
+    selectedIndices.forEach(idx => {
+        const img = all[idx];
+        if (!img || !img.id || !img.id.startsWith('sub-')) return;
+        const isMine = profile.code && img.author === profile.author && img.user_code === profile.code;
+        if (adminMode || isMine) deletable.push(img);
+        else notAllowed.push(img);
+    });
+    
+    if (!deletable.length) return showToast('没有可删除的图片');
+    
+    const confirmMsg = notAllowed.length 
+        ? `将删除 ${deletable.length} 张（${notAllowed.length} 张无权限，已跳过）`
+        : `确定删除选中的 ${deletable.length} 张图片吗？`;
+    const res = await showConfirm(confirmMsg, {title: '批量删除'});
+    if (!res.confirmed) return;
+    
+    showToast(`🗑️ 删除中 (0/${deletable.length})...`);
+    let done = 0, failed = 0;
+    
+    for (const img of deletable) {
+        try {
+            const numericId = parseInt(img.id.replace('sub-', ''), 10);
+            if (img.fullSrc) await deleteStorageFile(img.fullSrc);
+            if (img.src && img.src !== img.fullSrc) await deleteStorageFile(img.src);
+            
+            let result;
+            if (adminMode) {
+                result = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: adminPassword });
+            } else {
+                result = await sb.rpc('delete_own_submission', { submission_id: numericId, author_name: profile.author, code: profile.code });
+            }
+            if (result.error) throw result.error;
+            done++;
+        } catch (e) {
+            console.error('删除失败', img.id, e);
+            failed++;
+        }
+        showToast(`🗑️ 删除中 (${done + failed}/${deletable.length})...`);
+    }
+    
+    if (failed === 0) showToast(`✅ 成功删除 ${done} 张`);
+    else showToast(`⚠️ 删除完成：成功 ${done}，失败 ${failed}`);
+    
+    selectedIndices.clear();
+    cancelSelectMode();
+    loadSubmissions(true);
+    updateStats();
+}
+
 function toggleSelectMode() {
     selectMode = !selectMode;
     if (selectMode) {
@@ -1912,6 +2211,7 @@ function toggleSelectMode() {
         document.getElementById('btnSelectDownload').style.display = 'none';
         document.getElementById('btnCancelSelect').style.display = 'inline-flex';
         document.getElementById('btnDownloadSelected').style.display = 'inline-flex';
+        document.getElementById('btnDeleteSelected').style.display = 'inline-flex';
         updateSelectedCount();
         document.querySelectorAll('.select-checkbox').forEach(cb => cb.checked = false);
     } else {
@@ -1919,6 +2219,7 @@ function toggleSelectMode() {
     }
     updateSelectedBar();
 }
+
 function cancelSelectMode() {
     selectMode = false;
     selectedIndices.clear();
@@ -1926,10 +2227,18 @@ function cancelSelectMode() {
     document.getElementById('btnSelectDownload').style.display = '';
     document.getElementById('btnCancelSelect').style.display = 'none';
     document.getElementById('btnDownloadSelected').style.display = 'none';
+    document.getElementById('btnDeleteSelected').style.display = 'none';
     document.querySelectorAll('.select-checkbox').forEach(cb => cb.checked = false);
     updateSelectedBar();
 }
-function updateSelectedCount() { const btn = document.getElementById('btnDownloadSelected'); if (btn) btn.textContent = `下载选中 (${selectedIndices.size})`; }
+
+function updateSelectedCount() { 
+    const downloadBtn = document.getElementById('btnDownloadSelected'); 
+    if (downloadBtn) downloadBtn.textContent = `下载(${selectedIndices.size})`;
+    const deleteBtn = document.getElementById('btnDeleteSelected');
+    if (deleteBtn) deleteBtn.textContent = `删除(${selectedIndices.size})`;
+}
+
 window.toggleSelectImage = function(idx) {
     if (selectedIndices.has(idx)) selectedIndices.delete(idx);
     else selectedIndices.add(idx);
@@ -1939,7 +2248,9 @@ window.toggleSelectImage = function(idx) {
     updateSelectedBar();
 };
 
-// ==================== 灯箱（懒加载 slides） ====================
+// ==================== 灯箱 ====================
+let currentColorIndex = -1;
+
 function openLightbox(startIndex) {
     if (selectMode) return;
     const all = getAllImages();
@@ -1975,13 +2286,16 @@ function openLightbox(startIndex) {
         on: {
             slideChange(sw) {
                 loadNearbyLightboxImages(sw.activeIndex);
+                applyDynamicColor(sw.activeIndex);
             }
         }
     });
     loadNearbyLightboxImages(startIndex);
+    applyDynamicColor(startIndex);
     document.getElementById('lightboxOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
+
 function loadNearbyLightboxImages(centerIndex) {
     const wrapper = document.getElementById('lightboxWrapper');
     const slides = wrapper.querySelectorAll('.swiper-slide');
@@ -1995,9 +2309,30 @@ function loadNearbyLightboxImages(centerIndex) {
         }
     });
 }
+
+async function applyDynamicColor(index) {
+    if (index === currentColorIndex) return;
+    currentColorIndex = index;
+    const all = getAllImages();
+    const img = all[index];
+    if (!img) return;
+    const url = img.fullSrc || img.src;
+    if (!url) return;
+    const color = await extractDominantColor(url);
+    if (!color) return;
+    const { r, g, b } = color;
+    const darkR = Math.floor(r * 0.35);
+    const darkG = Math.floor(g * 0.35);
+    const darkB = Math.floor(b * 0.35);
+    document.getElementById('lightboxOverlay').style.background =
+        `rgba(${darkR}, ${darkG}, ${darkB}, 0.94)`;
+}
+
 function closeLightbox() {
     document.getElementById('lightboxOverlay').classList.remove('active');
     document.body.style.overflow = '';
+    document.getElementById('lightboxOverlay').style.background = '';
+    currentColorIndex = -1;
     if (lightboxSwiper) { lightboxSwiper.destroy(true, true); lightboxSwiper = null; }
 }
 document.getElementById('btnLightboxClose').onclick = closeLightbox;
@@ -2010,7 +2345,6 @@ document.getElementById('lightboxOverlay').addEventListener('click', e => {
     if (e.target === document.getElementById('lightboxOverlay')) closeLightbox();
 });
 
-// 移动端长按保存
 let longPressTimer;
 document.getElementById('lightboxOverlay').addEventListener('touchstart', e => {
     const img = e.target.closest('.swiper-slide img');
@@ -2048,12 +2382,15 @@ async function uploadFiles(files, profile, btn) {
     retryFiles = [];
     const total = files.length;
     let completed = 0;
+    const startTime = Date.now();
     const progressEl = document.getElementById('uploadProgress');
     const fillEl = document.getElementById('uploadProgressFill');
     const textEl = document.getElementById('uploadProgressText');
+    const etaEl = document.getElementById('uploadProgressEta');
     progressEl.style.display = 'block';
     fillEl.style.width = '0%';
     textEl.textContent = `0 / ${total}`;
+    etaEl.textContent = '';
 
     async function uploadOne(f) {
         if(!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size>10*1024*1024) {
@@ -2061,14 +2398,13 @@ async function uploadFiles(files, profile, btn) {
         }
         try {
             const { width, height, thumbBlob, originalBlob } = await processImageFile(f);
-
             const hash = await calculateHash(f);
             const { data: existing } = await sb.from('submissions')
                 .select('id').eq('content_hash', hash).eq('user_code', profile.code).maybeSingle();
             if (existing) { showToast(`⚠️ 图片已存在，跳过 "${f.name}"`); return false; }
 
-            const thumbFileName = `uploads/thumbs/${profile.code}_${Date.now()}_${Math.random().toString(36).substring(2,8)}.jpg`;
-            const { error: thumbUploadError } = await sb.storage.from('fishball-home').upload(thumbFileName, thumbBlob, { cacheControl:'3600', contentType:'image/jpeg', upsert:false });
+            const thumbFileName = `uploads/thumbs/${profile.code}_${Date.now()}_${Math.random().toString(36).substring(2,8)}.webp`;
+            const { error: thumbUploadError } = await sb.storage.from('fishball-home').upload(thumbFileName, thumbBlob, { cacheControl:'31536000', contentType:'image/webp', upsert:false });
             let thumbPublicUrl = '';
             if (!thumbUploadError) {
                 const { data: { publicUrl } } = sb.storage.from('fishball-home').getPublicUrl(thumbFileName);
@@ -2076,7 +2412,7 @@ async function uploadFiles(files, profile, btn) {
             }
 
             const originalFileName = `uploads/${profile.code}_${Date.now()}_${Math.random().toString(36).substring(2,8)}.jpg`;
-            const { error: originalUploadError } = await sb.storage.from('fishball-home').upload(originalFileName, originalBlob, { cacheControl:'3600', contentType:'image/jpeg', upsert:false });
+            const { error: originalUploadError } = await sb.storage.from('fishball-home').upload(originalFileName, originalBlob, { cacheControl:'31536000', contentType:'image/jpeg', upsert:false });
             if(originalUploadError) { retryFiles.push(f); return false; }
             const { data: { publicUrl: originalPublicUrl } } = sb.storage.from('fishball-home').getPublicUrl(originalFileName);
 
@@ -2111,7 +2447,17 @@ async function uploadFiles(files, profile, btn) {
             completed++;
             const pct = Math.round(completed / total * 100);
             fillEl.style.width = pct + '%';
-            textEl.textContent = `${completed} / ${total}`;
+            textEl.textContent = `${completed} / ${total} · ${pct}%`;
+            const elapsed = (Date.now() - startTime) / 1000;
+            if (completed > 0 && completed < total) {
+                const avgPerFile = elapsed / completed;
+                const remaining = Math.round(avgPerFile * (total - completed));
+                etaEl.textContent = '⏱ ' + formatETA(remaining);
+            } else if (completed === total) {
+                etaEl.textContent = '✅ 完成';
+            } else {
+                etaEl.textContent = '⏱ 计算中...';
+            }
             btn.textContent = `⏳ 上传中 (${completed}/${total})`;
         }
     }
@@ -2140,7 +2486,13 @@ if (submitForm) submitForm.addEventListener('submit', async function(e) {
     }
     const btn = document.getElementById('btnSubmitForm'); btn.disabled = true;
     const count = await uploadFiles(files, profile, btn);
-    if(count>0) { closeSubmitModal(); showToast(`🎉 成功投稿 ${count} 张`); clearDraft(); loadSubmissions(true); updateStats(); }
+    if(count>0) {
+        closeSubmitModal();
+        showToast(reviewModeOn ? `📤 已提交 ${count} 张，等待审核` : `🎉 成功投稿 ${count} 张`);
+        clearDraft();
+        loadSubmissions(true);
+        updateStats();
+    }
     document.getElementById('inputFile').value = '';
     btn.disabled = false; btn.textContent = '✨ 提交投稿';
     const retryBtn = document.getElementById('retryFailedBtn');
@@ -2217,15 +2569,220 @@ async function enterAdminMode() {
     adminMode = true; adminPassword = res.password;
     showToast('已进入管理员模式');
     document.getElementById('btnExitAdmin').style.display = 'inline-block';
+    document.getElementById('btnAdminPanel').style.display = 'inline-block';
     renderGallery(); loadMessages(true);
 }
 function exitAdminMode() {
     adminMode = false; adminPassword = null;
     document.getElementById('btnExitAdmin').style.display = 'none';
+    document.getElementById('btnAdminPanel').style.display = 'none';
+    closeAdminPanel();
     showToast('已退出管理员模式');
     renderGallery(); loadMessages(true);
 }
 document.getElementById('btnExitAdmin').addEventListener('click', exitAdminMode);
+
+// ==================== 管理面板 ====================
+function openAdminPanel() {
+    if (!adminMode) return;
+    document.getElementById('adminPanelOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    loadAdminUsers();
+    refreshReviewModeStatus();
+}
+
+function closeAdminPanel() {
+    const el = document.getElementById('adminPanelOverlay');
+    if (el) el.classList.remove('active');
+}
+
+async function loadAdminUsers() {
+    const listEl = document.getElementById('adminUserList');
+    listEl.innerHTML = '<div class="admin-empty">加载中...</div>';
+    const { data, error } = await sb.rpc('admin_list_profiles', { admin_pwd: adminPassword });
+    if (error) {
+        listEl.innerHTML = `<div class="admin-empty">❌ 加载失败：${escapeHtml(error.message)}</div>`;
+        return;
+    }
+    adminPanelUsers = data || [];
+    if (!adminPanelUsers.length) {
+        listEl.innerHTML = '<div class="admin-empty">暂无用户</div>';
+        return;
+    }
+    const frag = document.createDocumentFragment();
+    adminPanelUsers.forEach(u => {
+        const row = document.createElement('div');
+        row.className = 'admin-user-row';
+        row.innerHTML = `
+            <div class="admin-user-info">
+                <span class="admin-user-name">${escapeHtml(u.author)}</span>
+                <span class="admin-user-code">${escapeHtml(u.user_code)}</span>
+            </div>
+            <div class="admin-user-stats">📸 ${u.submission_count} · 💬 ${u.message_count} · ❤️ ${u.like_count}</div>
+            <div class="admin-user-actions">
+                <button class="admin-mini-btn primary" data-action="rename" data-code="${escapeHtml(u.user_code)}" data-author="${escapeHtml(u.author)}">改名</button>
+                <button class="admin-mini-btn primary" data-action="reset" data-code="${escapeHtml(u.user_code)}" data-author="${escapeHtml(u.author)}">重置码</button>
+                <button class="admin-mini-btn danger" data-action="delete" data-code="${escapeHtml(u.user_code)}" data-author="${escapeHtml(u.author)}">删除</button>
+            </div>`;
+        frag.appendChild(row);
+    });
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+}
+
+async function listAllStorageFiles() {
+    const results = [];
+    const folders = ['uploads', 'uploads/thumbs'];
+    for (const folder of folders) {
+        const limit = 100;
+        let offset = 0;
+        while (true) {
+            const { data, error } = await sb.storage.from('fishball-home').list(folder, { limit, offset });
+            if (error || !data || data.length === 0) break;
+            data.forEach(item => {
+                if (item.id) results.push(folder + '/' + item.name);
+            });
+            if (data.length < limit) break;
+            offset += limit;
+        }
+    }
+    return results;
+}
+
+async function findAllDbReferencedPaths() {
+    const set = new Set();
+    let offset = 0;
+    const limit = 1000;
+    while (true) {
+        const { data, error } = await sb.from('submissions')
+            .select('image_url, thumbnail_url')
+            .range(offset, offset + limit - 1);
+        if (error || !data || data.length === 0) break;
+        data.forEach(row => {
+            if (row.image_url) {
+                const p = getStoragePathFromUrl(row.image_url);
+                if (p) set.add(p);
+            }
+            if (row.thumbnail_url) {
+                const p = getStoragePathFromUrl(row.thumbnail_url);
+                if (p) set.add(p);
+            }
+        });
+        if (data.length < limit) break;
+        offset += limit;
+    }
+    return set;
+}
+
+async function scanOrphanFiles() {
+    const resultEl = document.getElementById('orphanResult');
+    const deleteBtn = document.getElementById('btnDeleteOrphans');
+    resultEl.innerHTML = '<div class="admin-empty">扫描中，请稍候...</div>';
+    deleteBtn.style.display = 'none';
+
+    const allFiles = await listAllStorageFiles();
+    const dbPaths = await findAllDbReferencedPaths();
+    const orphans = allFiles.filter(p => !dbPaths.has(p));
+    window.__orphanFiles = orphans;
+
+    if (!orphans.length) {
+        resultEl.innerHTML = '<div class="admin-empty">✨ 没有孤儿文件，一切干净</div>';
+        return;
+    }
+
+    resultEl.innerHTML = `
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">
+            找到 <strong style="color:#c0392b;">${orphans.length}</strong> 个孤儿文件：
+        </div>
+        <div style="max-height: 220px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; background: var(--cream);">
+            ${orphans.map(p => `<div class="orphan-item">${escapeHtml(p)}</div>`).join('')}
+        </div>`;
+    deleteBtn.style.display = 'inline-block';
+}
+
+async function deleteOrphanFiles() {
+    const orphans = window.__orphanFiles || [];
+    if (!orphans.length) return;
+    const res = await showConfirm(`确认删除 ${orphans.length} 个孤儿文件吗？`, { title: '清理孤儿文件' });
+    if (!res.confirmed) return;
+
+    showToast(`🗑️ 删除中 (0/${orphans.length})...`);
+    let done = 0, failed = 0;
+    for (let i = 0; i < orphans.length; i += 50) {
+        const batch = orphans.slice(i, i + 50);
+        const { error } = await sb.storage.from('fishball-home').remove(batch);
+        if (error) failed += batch.length;
+        else done += batch.length;
+        showToast(`🗑️ 删除中 (${done + failed}/${orphans.length})...`);
+    }
+    showToast(`✅ 完成：删除 ${done}，失败 ${failed}`);
+    window.__orphanFiles = [];
+    document.getElementById('orphanResult').innerHTML = '<div class="admin-empty">已清理完成</div>';
+    document.getElementById('btnDeleteOrphans').style.display = 'none';
+}
+
+// ===== 审核功能 =====
+async function refreshReviewModeStatus() {
+    try {
+        const { data } = await sb.rpc('get_review_mode');
+        reviewModeOn = data === true;
+        const el = document.getElementById('reviewModeStatus');
+        el.textContent = reviewModeOn ? '审核：开启' : '审核：关闭';
+        el.style.color = reviewModeOn ? '#c0392b' : '#27ae60';
+    } catch (e) {
+        document.getElementById('reviewModeStatus').textContent = '状态未知';
+    }
+}
+
+async function toggleReviewMode() {
+    const newVal = !reviewModeOn;
+    const msg = newVal
+        ? '开启后，用户新提交的投稿和故事需审核通过才公开显示。确认开启？'
+        : '关闭后，用户新提交的内容将直接显示。确认关闭？';
+    const res = await showConfirm(msg, { title: '切换审核模式' });
+    if (!res.confirmed) return;
+    const { error } = await sb.rpc('admin_set_review_mode', { enable: newVal, admin_pwd: adminPassword });
+    if (error) return showToast('❌ ' + error.message);
+    showToast('✅ 已切换为' + (newVal ? '开启' : '关闭'));
+    refreshReviewModeStatus();
+}
+
+async function loadPending() {
+    const listEl = document.getElementById('adminPendingList');
+    listEl.innerHTML = '<div class="admin-empty">加载中...</div>';
+    const { data, error } = await sb.rpc('admin_list_pending', { admin_pwd: adminPassword });
+    if (error) {
+        listEl.innerHTML = `<div class="admin-empty">❌ ${escapeHtml(error.message)}</div>`;
+        return;
+    }
+    if (!data || !data.length) {
+        listEl.innerHTML = '<div class="admin-empty">✨ 没有待审核内容</div>';
+        return;
+    }
+    const frag = document.createDocumentFragment();
+    data.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'admin-user-row';
+        const preview = item.kind === 'submission'
+            ? (item.title || '（无标题图片）')
+            : (item.content.length > 50 ? item.content.slice(0, 50) + '…' : item.content);
+        const kindLabel = item.kind === 'submission' ? '📸' : '💬';
+        const timeStr = new Date(item.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        row.innerHTML = `
+            <div class="admin-user-info">
+                <span class="admin-user-name">${kindLabel} ${escapeHtml(item.author)}</span>
+                <span class="admin-user-code">${escapeHtml(preview)}</span>
+            </div>
+            <div class="admin-user-stats">${timeStr}</div>
+            <div class="admin-user-actions">
+                <button class="admin-mini-btn primary" data-approve-kind="${item.kind}" data-approve-id="${item.id}">通过</button>
+                <button class="admin-mini-btn danger" data-reject-kind="${item.kind}" data-reject-id="${item.id}">删除</button>
+            </div>`;
+        frag.appendChild(row);
+    });
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+}
 
 // ==================== 个人身份 ====================
 async function checkAuthorExists(name) {
@@ -2233,21 +2790,68 @@ async function checkAuthorExists(name) {
     if (error) return false;
     return !!data;
 }
+
+function updateAuthorNameInPlace(oldName, newName) {
+    document.querySelectorAll('.image-card-author').forEach(el => {
+        const html = el.innerHTML;
+        if (html.includes(`by ${escapeHtml(oldName)}`)) {
+            el.innerHTML = html.replace(
+                `by ${escapeHtml(oldName)}`,
+                `by ${escapeHtml(newName)}`
+            );
+        }
+    });
+    document.querySelectorAll('.story-author span').forEach(el => {
+        if (el.textContent.startsWith(oldName)) {
+            el.textContent = el.textContent.replace(oldName, newName);
+        }
+    });
+    submissionImages.forEach(img => {
+        if (img.author === oldName && img.user_code === getProfile().code) {
+            img.author = newName;
+        }
+    });
+    Object.values(storiesStore).forEach(m => {
+        if (m.author === oldName && m.user_code === getProfile().code) {
+            m.author = newName;
+        }
+    });
+}
+
 async function syncProfileFromServer() {
     const profile = getProfile(); if(!profile.code) return;
     const { data, error } = await sb.rpc('get_author_by_code',{p_code:profile.code});
     if(error||!data) return;
     if(data !== profile.author) {
+        const oldName = profile.author;
         saveProfile(data, profile.code);
         showToast('ℹ️ 昵称已自动同步');
-        renderGallery(); loadMessages(true);
+        updateAuthorNameInPlace(oldName, data);
     }
 }
-function startAutoSync() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(syncProfileFromServer,30000); }
-function stopAutoSync() { if(syncInterval) clearInterval(syncInterval); }
+
+// 切回页面时同步一次
 document.addEventListener('visibilitychange', () => {
-    document.hidden ? stopAutoSync() : (startAutoSync(), syncProfileFromServer());
+    if (document.hidden) return;
+    syncProfileFromServer();
+    if (lightboxSwiper) return;
+    if (document.querySelector('.modal-overlay.active')) return;
+    if (selectMode) return;
+    loadSubmissions(true);
+    loadMessages(true);
 });
+
+// 同浏览器多标签广播
+try {
+    profileChannel = new BroadcastChannel('fishball_profile');
+    profileChannel.onmessage = (e) => {
+        if (!e.data) return;
+        const me = getProfile();
+        if (e.data.type === 'rename' && e.data.code === me.code) {
+            updateAuthorNameInPlace(e.data.oldName, e.data.newName);
+        }
+    };
+} catch (e) {}
 
 async function openProfileModal() {
     const p = getProfile();
@@ -2327,7 +2931,7 @@ if (profileForm) profileForm.addEventListener('submit', async e => {
     if(oldCode) {
         if(old.author !== newName) {
             const exist = await checkAuthorExists(newName);
-            if(exist && exist !== oldCode) return showToast('该昵称已被注册');
+            if(exist) return showToast('该昵称已被注册');
             await sb.rpc('update_profile_author',{old_author:old.author, new_author:newName, p_code:oldCode});
         }
         let newCode = document.getElementById('profileCode').value.trim() || oldCode;
@@ -2335,6 +2939,16 @@ if (profileForm) profileForm.addEventListener('submit', async e => {
         saveProfile(newName, newCode);
         showToast('个人信息已保存');
         closeProfileModal();
+        if (profileChannel && old.author !== newName) {
+            try {
+                profileChannel.postMessage({
+                    type: 'rename',
+                    code: newCode,
+                    oldName: old.author,
+                    newName: newName
+                });
+            } catch (e) {}
+        }
         loadSubmissions(true); loadMessages(true);
         return;
     }
@@ -2432,6 +3046,98 @@ document.getElementById('btnAboutClose').onclick = () => {
 document.getElementById('btnSelectDownload').onclick = toggleSelectMode;
 document.getElementById('btnCancelSelect').onclick = cancelSelectMode;
 document.getElementById('btnDownloadSelected').onclick = downloadSelected;
+document.getElementById('btnDeleteSelected').onclick = deleteSelected;
+
+document.getElementById('btnAdminPanel').addEventListener('click', openAdminPanel);
+document.getElementById('btnAdminPanelClose').addEventListener('click', closeAdminPanel);
+document.getElementById('btnLoadUsers').addEventListener('click', loadAdminUsers);
+document.getElementById('btnScanOrphans').addEventListener('click', scanOrphanFiles);
+document.getElementById('btnDeleteOrphans').addEventListener('click', deleteOrphanFiles);
+document.getElementById('btnToggleReview').addEventListener('click', toggleReviewMode);
+document.getElementById('btnLoadPending').addEventListener('click', loadPending);
+
+// 用户管理操作委托
+document.getElementById('adminUserList').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const code = btn.getAttribute('data-code');
+    const author = btn.getAttribute('data-author');
+
+    if (action === 'rename') {
+        const newName = prompt(`将「${author}」改为：`, author);
+        if (!newName || newName === author) return;
+        if (newName.length > 10) return showToast('昵称不超过 10 字');
+        const { error } = await sb.rpc('admin_rename_author', { p_code: code, new_name: newName, admin_pwd: adminPassword });
+        if (error) return showToast('❌ ' + error.message);
+        showToast('✅ 改名成功');
+        loadAdminUsers();
+        renderGallery();
+        loadMessages(true);
+    }
+
+    if (action === 'reset') {
+        const defaultCode = 'FM' + Math.random().toString(36).substring(2,10).toUpperCase();
+        const newCode = prompt(`为「${author}」生成新专属码：`, defaultCode);
+        if (!newCode) return;
+        const res = await showConfirm(`确认将「${author}」的专属码重置为\n\n${newCode}\n\n旧码将立即失效。`, { title: '重置专属码' });
+        if (!res.confirmed) return;
+        const { error } = await sb.rpc('admin_reset_code', { old_code: code, new_code: newCode, admin_pwd: adminPassword });
+        if (error) return showToast('❌ ' + error.message);
+        showToast('✅ 已重置');
+        loadAdminUsers();
+    }
+
+    if (action === 'delete') {
+        const res = await showConfirm(`⚠️ 将永久删除「${author}」及其所有投稿、留言、点赞。此操作不可恢复！`, { title: '删除用户' });
+        if (!res.confirmed) return;
+        const { error } = await sb.rpc('admin_delete_profile', { p_code: code, admin_pwd: adminPassword });
+        if (error) return showToast('❌ ' + error.message);
+        showToast('🗑️ 用户已删除');
+        loadAdminUsers();
+        loadSubmissions(true);
+        loadMessages(true);
+        updateStats();
+    }
+});
+
+// 审核操作委托
+document.getElementById('adminPendingList').addEventListener('click', async e => {
+    const approveBtn = e.target.closest('[data-approve-kind]');
+    if (approveBtn) {
+        const kind = approveBtn.getAttribute('data-approve-kind');
+        const id = parseInt(approveBtn.getAttribute('data-approve-id'), 10);
+        const { error } = await sb.rpc('admin_approve', { p_kind: kind, p_id: id, admin_pwd: adminPassword });
+        if (error) return showToast('❌ ' + error.message);
+        showToast('✅ 已通过');
+        loadPending();
+        loadSubmissions(true);
+        loadMessages(true);
+        return;
+    }
+    const rejectBtn = e.target.closest('[data-reject-kind]');
+    if (rejectBtn) {
+        const kind = rejectBtn.getAttribute('data-reject-kind');
+        const id = parseInt(rejectBtn.getAttribute('data-reject-id'), 10);
+        const res = await showConfirm('确认删除此内容吗？', { title: '拒绝并删除' });
+        if (!res.confirmed) return;
+        if (kind === 'submission') {
+            const numericId = id;
+            const { data: row } = await sb.from('submissions').select('image_url,thumbnail_url').eq('id', numericId).single();
+            const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: adminPassword });
+            if (error) return showToast('❌ ' + error.message);
+            if (row) {
+                if (row.image_url) await deleteStorageFile(row.image_url);
+                if (row.thumbnail_url && row.thumbnail_url !== row.image_url) await deleteStorageFile(row.thumbnail_url);
+            }
+        } else {
+            const { error } = await sb.rpc('admin_delete_message', { message_id: id, admin_pwd: adminPassword });
+            if (error) return showToast('❌ ' + error.message);
+        }
+        showToast('🗑️ 已删除');
+        loadPending();
+    }
+});
 
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => {
     if(e.target===o) { o.classList.remove('active'); document.body.style.overflow=''; }
@@ -2518,10 +3224,9 @@ document.getElementById('btnEnter').onclick = () => {
         document.getElementById('gallerySection').classList.add('active');
         document.getElementById('gallerySection').style.display='block';
         window.scrollTo(0,0);
-        startAutoSync();
         updateStats();
         loadSubmissions(true);
-        setTimeout(() => loadMessages(true), 600);
+        setTimeout(() => loadMessages(true), 300);
     }, 350);
 };
 
@@ -2584,7 +3289,7 @@ document.getElementById('btnEnter').onclick = () => {
     });
 })();
 
-// ==================== 加载动画 ====================
+// ==================== 加载动画（自适应） ====================
 (function initLoader() {
     const titleEl = document.getElementById('loaderTitle');
     const overlay = document.getElementById('loaderOverlay');
@@ -2598,19 +3303,24 @@ document.getElementById('btnEnter').onclick = () => {
         span.style.animationDelay = (i * 90) + 'ms';
         titleEl.appendChild(span);
     });
-    const minShow = new Promise(r => setTimeout(r, 1500));
+    const titleAnimDone = new Promise(r => setTimeout(r, Math.min(text.length * 90 + 600, 1500)));
     const dataReady = Promise.allSettled([statsPromise, loadSubmissions(true)]);
-    Promise.all([minShow, dataReady]).then(() => {
+    Promise.all([titleAnimDone, dataReady]).then(() => {
         overlay.classList.add('hide');
-        setTimeout(() => overlay.remove(), 800);
+        setTimeout(() => overlay.remove(), 700);
     });
 })();
 
 // ==================== 初始化 ====================
+(async () => {
+    try {
+        const { data } = await sb.rpc('get_review_mode');
+        reviewModeOn = data === true;
+    } catch (e) {}
+})();
 playHeroAnimation();
-startAutoSync();
 updateStats();
-console.log('鱼丸的小屋 · 全修复版 已启动');
+console.log('鱼丸的小屋 · 完整版 已启动');
 </script>
 </body>
 </html>
