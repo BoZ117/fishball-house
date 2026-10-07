@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>鱼丸的小屋</title>
+<title>鱼丸的时光屋</title>
 <link rel="preconnect" href="https://jiqwlxyspqylgpnsjvnq.supabase.co">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.10.1/jszip.min.js"></script>
@@ -79,7 +79,7 @@ body::before {
 .loader-content { text-align: center; }
 .loader-title {
     font-family: var(--serif);
-    font-size: clamp(1.8rem, 6vw, 2.6rem);
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
     font-weight: 900; color: #fff; letter-spacing: 0.12em;
     margin-bottom: 26px;
     display: flex; gap: 4px; justify-content: center;
@@ -129,7 +129,7 @@ body::before {
 .hero-section > *:not(.hero-particles) { position: relative; z-index: 2; }
 .hero-section.fade-out { opacity:0; transform:translateY(-20px); pointer-events:none; }
 .hero-title {
-    font-family: var(--serif); font-size:clamp(2rem,7vw,3.5rem);
+    font-family: var(--serif); font-size:clamp(1.8rem,6vw,3.2rem);
     font-weight:900; letter-spacing:0.06em;
     position:relative; color:#fff; margin-bottom:8px;
 }
@@ -184,14 +184,14 @@ body::before {
 .btn-enter:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(192,108,132,0.4); }
 
 /* ===== 图库 ===== */
-.gallery-section { display:none; min-height:100vh; padding:76px 0 40px; background:var(--cream); }
+.gallery-section { display:none; min-height:100vh; padding:76px 0 0; background:var(--cream); }
 .gallery-section.active { display:block; }
 .gallery-section.active > .stats-bar,
 .gallery-section.active > .stats-strip,
+.gallery-section.active > .tag-bar,
 .gallery-section.active > .gallery-grid,
 .gallery-section.active > .load-more,
-.gallery-section.active > .inline-stories,
-.gallery-section.active > .more-box {
+.gallery-section.active > .inline-stories {
     animation: fadeInUp 0.5s ease both;
 }
 @keyframes fadeInUp { from{opacity:0;} to{opacity:1;} }
@@ -282,7 +282,7 @@ body::before {
 .stats-strip {
     background: linear-gradient(180deg, #1a1a1a 0%, #232323 100%);
     color: #fff;
-    margin: 24px 0 40px;
+    margin: 24px 0 30px;
     padding: 46px 24px;
     position: relative; overflow: hidden;
 }
@@ -315,6 +315,49 @@ body::before {
     font-family: var(--sans);
 }
 
+/* ===== 顶部标签栏 ===== */
+.tag-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 24px 14px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+#tagBarTop {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-margin-top: 90px;
+}
+#tagBarTop::-webkit-scrollbar { display: none; }
+
+.tag-chip {
+    padding: 6px 18px;
+    border: 1px solid rgba(192,108,132,0.2);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.25s;
+    font-family: var(--sans);
+    flex-shrink: 0;
+}
+.tag-chip:hover {
+    border-color: var(--pink);
+    color: var(--pink);
+    background: rgba(192,108,132,0.04);
+}
+.tag-chip.active {
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(192,108,132,0.25);
+}
+
 /* ===== 瀑布流 ===== */
 .gallery-grid {
     column-count: 5;
@@ -322,6 +365,11 @@ body::before {
     padding: 0 24px;
     max-width: 1500px;
     margin: 0 auto;
+    transition: opacity 0.2s ease;
+}
+.gallery-grid.loading {
+    pointer-events: none;
+    opacity: 0.5;
 }
 .image-card {
     break-inside: avoid;
@@ -363,11 +411,7 @@ body::before {
 }
 .image-card-inner img.loaded { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
 .image-card:hover .image-card-inner img.loaded { transform: scale(1.05); }
-
-.image-card-inner.has-ratio img {
-    height: 100%;
-    object-fit: contain;
-}
+.image-card-inner.has-ratio img { height: 100%; object-fit: contain; }
 
 .image-skeleton {
     position: absolute; inset: 0;
@@ -403,6 +447,22 @@ body::before {
 .badge-preset { background: rgba(197,165,90,0.12); color: var(--gold); }
 .badge-submission { background: rgba(192,108,132,0.1); color: var(--pink); }
 .badge-pending { background: rgba(243,156,18,0.15); color: #e67e22; }
+
+.image-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+.image-card-tag {
+    font-size: 0.55rem;
+    padding: 2px 8px;
+    background: rgba(192,108,132,0.08);
+    color: var(--pink);
+    border-radius: 8px;
+    letter-spacing: 0.05em;
+}
+
 .image-card-actions {
     display: flex; justify-content: flex-end; gap: 6px;
     margin-top: 8px; padding-top: 6px;
@@ -469,7 +529,7 @@ body::before {
 /* ===== 故事集 ===== */
 .inline-stories {
     max-width: 1500px; margin: 30px auto 0;
-    padding: 40px 0 40px;
+    padding: 40px 0 60px;
     border-top: 1px dashed rgba(192,108,132,0.15);
     position: relative;
 }
@@ -524,6 +584,10 @@ body::before {
     overflow: hidden;
     animation: cardIn 0.5s cubic-bezier(.25,.46,.45,.94) backwards;
 }
+.story-card.pending {
+    border: 2px dashed rgba(243,156,18,0.4);
+    background: rgba(243,156,18,0.02);
+}
 .story-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(192,108,132,0.18); }
 .story-card::before {
     content: '"'; position: absolute;
@@ -561,6 +625,7 @@ body::before {
     font-family: var(--serif); font-size: 0.82rem;
     color: var(--pink); font-weight: 600;
     min-width: 0;
+    flex-wrap: wrap;
 }
 .story-avatar {
     width: 28px; height: 28px; border-radius: 50%;
@@ -606,40 +671,175 @@ body::before {
 }
 .story-write-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(192,108,132,0.35); }
 
-/* ===== 底部更多 ===== */
-.more-box {
+/* ===== 深色页脚 ===== */
+.site-footer {
+    background: linear-gradient(180deg, #141414 0%, #1c1c1c 100%);
+    color: #eee;
+    padding: 60px 24px 50px;
+    margin-top: 40px;
     position: relative;
-    margin: 40px 24px 0;
-    padding: 18px 24px;
-    background: rgba(26,26,26,0.92);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    display: flex; flex-direction: row;
-    align-items: center; justify-content: flex-start;
-    gap: 14px; color: #eee;
-    max-width: 1500px;
+    overflow: hidden;
 }
-@media (min-width: 1500px) {
-    .more-box { margin-left: auto; margin-right: auto; }
+.site-footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(192,108,132,0.08), transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(248,181,149,0.06), transparent 50%);
+    pointer-events: none;
 }
-.more-title {
-    font-family: var(--serif); font-size: 0.9rem;
-    color: var(--peach); letter-spacing: 0.2em;
-    flex-shrink: 0;
+.footer-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(320px, 1.1fr) 1.4fr;
+    gap: 60px;
+    position: relative;
+    z-index: 1;
 }
-.more-links {
-    display: flex; flex-direction: row;
-    align-items: center; gap: 8px; flex-wrap: wrap;
+
+.footer-brand-name {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
 }
-.more-link {
-    padding: 6px 16px; font-size: 0.82rem;
-    background: rgba(255,255,255,0.08);
+.footer-brand-desc {
+    font-size: 0.86rem;
+    line-height: 2;
+    color: rgba(255,255,255,0.62);
+    margin-bottom: 14px;
+    letter-spacing: 0.02em;
+}
+.footer-brand-dedication {
+    font-size: 0.86rem;
+    line-height: 2;
+    color: rgba(255,255,255,0.62);
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+}
+.footer-brand-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+}
+.footer-btn {
+    padding: 8px 22px;
+    border: 1px solid rgba(212,163,115,0.35);
+    background: transparent;
+    color: var(--peach);
+    border-radius: 24px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: var(--sans);
+    letter-spacing: 0.08em;
+}
+.footer-btn:hover {
+    background: rgba(212,163,115,0.1);
+    border-color: var(--peach);
+    transform: translateY(-1px);
+}
+.footer-brand-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+}
+.footer-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.footer-stat span {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--peach);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.footer-stat label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.15em;
+}
+
+.footer-columns {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-content: start;
+}
+.footer-col {
+    display: flex;
+    flex-direction: column;
+}
+.footer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-content: flex-start;
+}
+.site-footer .tag-chip {
+    padding: 6px 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: rgba(255,255,255,0.75);
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff; cursor: pointer;
-    transition: 0.3s; letter-spacing: 0.05em;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: var(--sans);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
 }
-.more-link:hover { background: rgba(248,181,149,0.18); border-color: var(--peach); }
+.site-footer .tag-chip:hover {
+    border-color: var(--peach);
+    color: var(--peach);
+    background: rgba(212,163,115,0.08);
+}
+.site-footer .tag-chip.active {
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(192,108,132,0.3);
+}
+.footer-more {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: flex-start;
+    min-width: 120px;
+}
+.footer-more-link {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.72);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    font-family: var(--sans);
+    transition: color 0.25s;
+    letter-spacing: 0.05em;
+    position: relative;
+    padding-left: 14px;
+}
+.footer-more-link::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--peach);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.footer-more-link:hover { color: var(--peach); }
 
 /* ===== 灯箱 ===== */
 .lightbox-overlay {
@@ -821,6 +1021,35 @@ body::before {
     display: flex; justify-content: space-between;
 }
 
+/* ===== 标签选择器 ===== */
+.tag-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.tag-pick-item {
+    padding: 6px 14px;
+    border: 1px solid rgba(192,108,132,0.2);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    user-select: none;
+}
+.tag-pick-item input { display: none; }
+.tag-pick-item:has(input:checked) {
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    color: #fff;
+    border-color: transparent;
+}
+.tag-pick-item.checked {
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    color: #fff;
+    border-color: transparent;
+}
+.tag-pick-item:hover { border-color: var(--pink); }
+
 /* ===== 其他 ===== */
 .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; }
 .toast {
@@ -974,6 +1203,16 @@ body::before {
 @media (max-width: 1199px) and (min-width: 768px) {
     .gallery-grid { column-count: 3; column-gap: 14px; padding: 0 20px; }
 }
+@media (max-width: 900px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .footer-columns {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
 @media (max-width: 767px) {
     .gallery-grid { column-count: 2; column-gap: 10px; padding: 0 12px; }
     .image-card { margin-bottom: 10px; }
@@ -985,8 +1224,12 @@ body::before {
     .stats-bar { margin:16px auto 28px; padding:0 16px; }
     .stats-bar strong { font-size:1.3rem; }
     .stats-bar span { margin:0 10px; font-size:0.78rem; }
+    .tag-bar { padding: 4px 12px 12px; }
+    .tag-chip { padding: 5px 14px; font-size: 0.75rem; }
+    #tagBarTop { scroll-margin-top: 70px; }
     .gallery-section { padding-top:70px; padding-bottom: 30px; }
-    .hero-title { font-size:2rem; }
+    .hero-title { font-size:1.6rem; }
+    .loader-title { font-size:1.5rem; }
     .stats-strip { padding: 36px 16px; margin: 16px 0 28px; }
     .stat-num { font-size: 2rem; }
     .stat-label { font-size: 0.62rem; letter-spacing: 0.25em; }
@@ -995,9 +1238,13 @@ body::before {
     .story-card { flex: 0 0 260px; max-width: 260px; padding: 26px 22px 18px; }
     .story-content { font-size: 0.84rem; -webkit-line-clamp: 6; }
     .story-delete { opacity: 1; }
-    .more-box { margin: 30px 12px 0; padding: 14px 16px; gap: 10px; border-radius: 14px; }
-    .more-link { padding: 5px 12px; font-size: 0.75rem; }
-    .more-title { font-size: 0.82rem; }
+    .site-footer { padding: 40px 20px 36px; }
+    .footer-brand-name { font-size: 1.3rem; }
+    .footer-brand-desc, .footer-brand-dedication { font-size: 0.8rem; line-height: 1.9; }
+    .footer-brand-actions { gap: 8px; }
+    .footer-btn { padding: 6px 16px; font-size: 0.75rem; }
+    .footer-brand-stats { gap: 32px; }
+    .footer-stat span { font-size: 1.6rem; }
     .lightbox-swiper { height: 70vh; }
 }
 </style>
@@ -1006,7 +1253,7 @@ body::before {
 
 <div class="loader-overlay" id="loaderOverlay">
     <div class="loader-content">
-        <h1 class="loader-title" id="loaderTitle">鱼丸的小屋</h1>
+        <h1 class="loader-title" id="loaderTitle">鱼丸的时光屋</h1>
         <div class="loader-line"></div>
     </div>
 </div>
@@ -1014,12 +1261,12 @@ body::before {
 <div class="app-container">
     <section class="hero-section" id="heroSection">
         <canvas class="hero-particles" id="heroParticles"></canvas>
-        <h1 class="hero-title" id="heroTitle">鱼丸的小屋</h1>
+        <h1 class="hero-title" id="heroTitle">鱼丸的时光屋</h1>
         <p class="hero-subtitle" id="heroSubtitle">温馨 · 分享 · 珍藏</p>
         <div class="hero-image-wrapper" id="heroImageWrapper">
             <div class="hero-image-glow"></div>
             <div class="hero-image-frame">
-                <img src="./1.jpg" alt="杀生鱼丸" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=color:#f8b595;font-weight:bold;>🐱 鱼丸的小屋</div>'">
+                <img src="./1.jpg" alt="杀生鱼丸" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=color:#f8b595;font-weight:bold;>🐱 鱼丸的时光屋</div>'">
             </div>
         </div>
         <div class="hero-stats" id="heroStats">
@@ -1033,7 +1280,7 @@ body::before {
         <nav class="gallery-nav">
             <div class="nav-left">
                 <button class="btn btn-back" id="btnBack">←</button>
-                <span class="gallery-nav-title">鱼丸的小屋</span>
+                <span class="gallery-nav-title">鱼丸的时光屋</span>
             </div>
             <div class="gallery-nav-actions">
                 <button class="btn" id="btnOpenProfile">我的</button>
@@ -1073,6 +1320,15 @@ body::before {
             </div>
         </div>
 
+        <div class="tag-bar" id="tagBarTop">
+            <button class="tag-chip active" data-tag="">全部</button>
+            <button class="tag-chip" data-tag="日常">日常</button>
+            <button class="tag-chip" data-tag="jett">jett</button>
+            <button class="tag-chip" data-tag="古风">古风</button>
+            <button class="tag-chip" data-tag="节日">节日</button>
+            <button class="tag-chip" data-tag="联动">联动</button>
+        </div>
+
         <div class="gallery-grid" id="galleryGrid"></div>
         <div id="loadMoreTrigger" class="load-more">加载更多...</div>
 
@@ -1092,14 +1348,53 @@ body::before {
             </div>
         </section>
 
-        <div class="more-box">
-            <div class="more-title">更 多</div>
-            <div class="more-links">
-                <button class="more-link" id="btnOpenSubmitBottom">📸 投稿</button>
-                <button class="more-link" id="btnOpenMessagesBottom">📖 故事集</button>
-                <button class="more-link" id="btnOpenAboutBottom">ℹ️ 关于</button>
+        <footer class="site-footer">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-brand-name">鱼丸的时光屋</div>
+                    <p class="footer-brand-desc">记录是另一种温柔。</p>
+                    <p class="footer-brand-dedication">把日子放进来，慢慢攒成一屋子的光。</p>
+                    <div class="footer-brand-actions">
+                        <button class="footer-btn" id="btnFooterSubmit">投稿回忆</button>
+                        <button class="footer-btn" id="btnFooterMessages">故事集</button>
+                        <button class="footer-btn" id="btnFooterGallery">浏览相册</button>
+                    </div>
+                    <div class="footer-brand-stats">
+                        <div class="footer-stat">
+                            <span id="footerStatImages">0</span>
+                            <label>照片珍藏</label>
+                        </div>
+                        <div class="footer-stat">
+                            <span id="footerStatMessages">0</span>
+                            <label>故事集</label>
+                        </div>
+                        <div class="footer-stat">
+                            <span id="footerStatAuthors">0</span>
+                            <label>投稿人</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-columns">
+                    <div class="footer-col">
+                        <div class="footer-tags" id="tagBarBottom">
+                            <button class="tag-chip active" data-tag="">全部</button>
+                            <button class="tag-chip" data-tag="日常">日常</button>
+                            <button class="tag-chip" data-tag="jett">jett</button>
+                            <button class="tag-chip" data-tag="古风">古风</button>
+                            <button class="tag-chip" data-tag="节日">节日</button>
+                            <button class="tag-chip" data-tag="联动">联动</button>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <div class="footer-more">
+                            <button class="footer-more-link" id="btnOpenSubmitBottom">投稿回忆</button>
+                            <button class="footer-more-link" id="btnOpenMessagesBottom">故事集</button>
+                            <button class="footer-more-link" id="btnOpenAboutBottom">关于我们</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </footer>
     </section>
 </div>
 
@@ -1110,7 +1405,7 @@ body::before {
         <h2 style="text-align:center; margin-bottom:16px; font-family:var(--serif);">📸 批量投稿</h2>
         <form id="submitForm">
             <div class="form-group">
-                <label class="form-label">图片标题（可留空）</label>
+                <label class="form-label">图片标题（可留空，作为默认标题）</label>
                 <input type="text" class="form-input" id="inputTitle" maxlength="15" placeholder="可不填">
             </div>
             <div class="form-group">
@@ -1129,6 +1424,16 @@ body::before {
                         <span id="uploadProgressText">0 / 0</span>
                         <span id="uploadProgressEta"></span>
                     </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">标签（可多选）</label>
+                <div class="tag-picker" id="submitTagPicker">
+                    <label class="tag-pick-item"><input type="checkbox" value="日常"> 日常</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="jett"> jett</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="古风"> 古风</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="节日"> 节日</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="联动"> 联动</label>
                 </div>
             </div>
             <button type="submit" class="form-submit" id="btnSubmitForm">✨ 提交投稿</button>
@@ -1196,6 +1501,16 @@ body::before {
             <label style="display:flex; align-items:center; gap:8px; margin-top:16px; font-size:0.85rem; color:var(--text-secondary); cursor:pointer;">
                 <input type="checkbox" id="msgAnonymous"> 匿名发布
             </label>
+            <div class="form-group" style="margin-top:16px;">
+                <label class="form-label">标签（可多选）</label>
+                <div class="tag-picker" id="msgTagPicker">
+                    <label class="tag-pick-item"><input type="checkbox" value="日常"> 日常</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="jett"> jett</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="古风"> 古风</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="节日"> 节日</label>
+                    <label class="tag-pick-item"><input type="checkbox" value="联动"> 联动</label>
+                </div>
+            </div>
             <button type="submit" class="form-submit" style="margin-top:22px;">✨ 发布故事</button>
         </form>
     </div>
@@ -1205,7 +1520,7 @@ body::before {
 <div class="modal-overlay" id="aboutModalOverlay">
     <div class="modal-dialog">
         <button class="modal-close" id="btnAboutClose">✕</button>
-        <h2 style="font-family:var(--serif); text-align:center; margin-bottom:8px;">关于鱼丸的小屋</h2>
+        <h2 style="font-family:var(--serif); text-align:center; margin-bottom:8px;">关于鱼丸的时光屋</h2>
         <div class="about-block">
             <div class="about-eyebrow">Established</div>
             <div class="about-label">创立</div>
@@ -1314,6 +1629,32 @@ body::before {
     </div>
 </div>
 
+<!-- 审核编辑弹窗 -->
+<div class="modal-overlay" id="editPendingOverlay">
+    <div class="modal-dialog">
+        <button class="modal-close" id="btnEditPendingClose">✕</button>
+        <h3 style="font-family: var(--serif); text-align:center; margin-bottom:16px;">编辑待审核内容</h3>
+        <input type="hidden" id="editPendingKind">
+        <input type="hidden" id="editPendingId">
+        <div class="form-group" id="editTitleGroup">
+            <label class="form-label">标题</label>
+            <input class="form-input" id="editPendingTitleInput" maxlength="15" placeholder="可留空">
+        </div>
+        <div class="form-group">
+            <label class="form-label">标签（可多选）</label>
+            <div class="tag-picker" id="editTagPicker">
+                <label class="tag-pick-item"><input type="checkbox" value="日常"> 日常</label>
+                <label class="tag-pick-item"><input type="checkbox" value="jett"> jett</label>
+                <label class="tag-pick-item"><input type="checkbox" value="古风"> 古风</label>
+                <label class="tag-pick-item"><input type="checkbox" value="节日"> 节日</label>
+                <label class="tag-pick-item"><input type="checkbox" value="联动"> 联动</label>
+            </div>
+        </div>
+        <button class="form-submit" id="btnEditPendingSave" style="margin-top:12px;">💾 保存并保留待审核</button>
+        <button class="form-submit" id="btnEditPendingSaveApprove" style="margin-top:8px; background:linear-gradient(135deg,#27ae60,#2ecc71);">✅ 保存并通过</button>
+    </div>
+</div>
+
 <div class="selected-bar" id="selectedBar"></div>
 <button class="btn-scroll-top" id="btnScrollTop">
     <svg class="scroll-ring" viewBox="0 0 46 46">
@@ -1343,7 +1684,7 @@ let submissionImages = [], adminMode = false, adminPassword = null;
 let selectMode = false, selectedIndices = new Set();
 let lastCursorId = null, hasMoreImages = true, isLoadingImages = false;
 let lastMsgId = null, hasMoreMessages = true, isLoadingMessages = false;
-let existingServerCode = null, retryFiles = [], syncInterval = null;
+let existingServerCode = null, retryFiles = [];
 let likeCounts = {}, likesRequested = new Set();
 let myLikes = new Set();
 let adminClickCount = 0, adminClickTimer = null;
@@ -1352,6 +1693,9 @@ let lightboxSwiper = null;
 let reviewModeOn = false;
 let adminPanelUsers = [];
 let profileChannel = null;
+let currentTag = '';
+let editPendingData = null;
+let loadRequestId = 0;
 
 const backfilledIds = new Set();
 let scrollSpeed = 0;
@@ -1360,14 +1704,19 @@ let lastScrollTime = Date.now();
 
 const statsPromise = (async () => {
     try {
-        const [{ count: totalImages }, { count: totalMessages }] = await Promise.all([
+        const [imagesRes, messagesRes, codesRes] = await Promise.all([
             sb.from('submissions').select('*', { count: 'exact', head: true }).eq('approved', true),
-            sb.from('messages').select('*', { count: 'exact', head: true }).eq('approved', true)
+            sb.from('messages').select('*', { count: 'exact', head: true }).eq('approved', true),
+            sb.from('submissions').select('user_code').eq('approved', true)
         ]);
-        return { totalImages: totalImages || 0, totalMessages: totalMessages || 0 };
+        const totalImages = Number(imagesRes.count) || 0;
+        const totalMessages = Number(messagesRes.count) || 0;
+        const uniqueCodes = new Set(((codesRes && codesRes.data) || []).map(r => r.user_code).filter(Boolean));
+        const totalAuthors = uniqueCodes.size;
+        return { totalImages, totalMessages, totalAuthors };
     } catch (e) {
         console.error('stats 预取失败', e);
-        return { totalImages: 0, totalMessages: 0 };
+        return { totalImages: 0, totalMessages: 0, totalAuthors: 0 };
     }
 })();
 
@@ -1516,6 +1865,7 @@ function showConfirm(message, options={}) {
 
 function animateNumber(element, target, duration = 1000) {
     if (!element) return;
+    target = Number(target) || 0;
     const startTime = performance.now();
     function update(currentTime) {
         const elapsed = currentTime - startTime;
@@ -1529,6 +1879,7 @@ function animateNumber(element, target, duration = 1000) {
 
 function animateCount(el, target, duration = 1200) {
     if (!el) return;
+    target = Number(target) || 0;
     const from = parseInt(el.textContent, 10) || 0;
     if (from === target) { el.textContent = target; return; }
     const startTime = performance.now();
@@ -1586,48 +1937,62 @@ async function playHeroAnimation() {
     statsEl.style.transition = 'opacity 0.4s ease';
     setTimeout(async () => {
         statsEl.style.opacity = '1';
-        const { totalImages } = await statsPromise;
-        const authorCount = new Set(submissionImages.map(img => `${img.author}::${img.user_code}`)).size;
+        const stats = await statsPromise;
+        const totalImages = Number(stats.totalImages) || 0;
+        const totalAuthors = Number(stats.totalAuthors) || 0;
         animateNumber(document.getElementById('heroTotalImages'), totalImages, 1000);
-        animateNumber(document.getElementById('heroTotalAuthors'), authorCount, 800);
+        animateNumber(document.getElementById('heroTotalAuthors'), totalAuthors, 800);
     }, titleTotal + 800);
 }
 
 // ==================== 数据加载 ====================
 async function updateStats() {
-    const { totalImages, totalMessages } = await statsPromise;
+    const stats = await statsPromise;
+    const totalImages = Number(stats.totalImages) || 0;
+    const totalMessages = Number(stats.totalMessages) || 0;
+    const totalAuthors = Number(stats.totalAuthors) || 0;
+
     document.getElementById('galleryTotalImages').textContent = totalImages;
     document.getElementById('galleryTotalMessages').textContent = totalMessages;
-    const uniqueAuthors = new Set(submissionImages.map(img => `${img.author}::${img.user_code}`));
-    document.getElementById('galleryTotalAuthors').textContent = uniqueAuthors.size;
+    document.getElementById('galleryTotalAuthors').textContent = totalAuthors;
     document.getElementById('heroTotalImages').textContent = totalImages;
-    document.getElementById('heroTotalAuthors').textContent = uniqueAuthors.size;
+    document.getElementById('heroTotalAuthors').textContent = totalAuthors;
     animateCount(document.getElementById('stripTotalImages'), totalImages);
-    animateCount(document.getElementById('stripTotalAuthors'), uniqueAuthors.size);
+    animateCount(document.getElementById('stripTotalAuthors'), totalAuthors);
     animateCount(document.getElementById('stripTotalMessages'), totalMessages);
+
+    const footImg = document.getElementById('footerStatImages');
+    const footMsg = document.getElementById('footerStatMessages');
+    const footAut = document.getElementById('footerStatAuthors');
+    if (footImg) footImg.textContent = totalImages;
+    if (footMsg) footMsg.textContent = totalMessages;
+    if (footAut) footAut.textContent = totalAuthors;
 }
 
 async function loadSubmissions(reset=true) {
-    if(reset) {
+    const grid = document.getElementById('galleryGrid');
+
+    if (!reset && (!hasMoreImages || isLoadingImages)) return;
+
+    const myRequestId = ++loadRequestId;
+
+    if (reset) {
         lastCursorId = null;
-        submissionImages = [];
         hasMoreImages = true;
-        document.getElementById('galleryGrid').innerHTML = '';
         likesRequested.clear();
         myLikes.clear();
         likeCounts = {};
-        backfilledIds.clear();
+        grid.classList.add('loading');
     }
-    if(!hasMoreImages || isLoadingImages) return;
-    const grid = document.getElementById('galleryGrid');
-    const firstCardBefore = grid.querySelector('.image-card');
-    const offsetBefore = firstCardBefore ? firstCardBefore.getBoundingClientRect().top : 0;
     isLoadingImages = true;
     document.getElementById('loadMoreTrigger').textContent = '加载中...';
 
+    const firstCardBefore = grid.querySelector('.image-card');
+    const offsetBefore = firstCardBefore ? firstCardBefore.getBoundingClientRect().top : 0;
+
     const profileNow = getProfile();
     let query = sb.from('submissions')
-        .select('id, title, author, image_url, thumbnail_url, user_code, created_at, width, height, approved')
+        .select('id, title, author, image_url, thumbnail_url, user_code, created_at, width, height, approved, tags')
         .order('id', { ascending: false })
         .limit(PAGE_SIZE);
     if (lastCursorId !== null) query = query.lt('id', lastCursorId);
@@ -1636,11 +2001,22 @@ async function loadSubmissions(reset=true) {
     } else {
         query = query.eq('approved', true);
     }
+    if (currentTag) {
+        query = query.contains('tags', [currentTag]);
+    }
 
     const { data, error } = await query;
-    if(error) { showToast('加载投稿失败'); isLoadingImages = false; return; }
-    if(data.length < PAGE_SIZE) hasMoreImages = false;
-    if(data.length > 0) lastCursorId = data[data.length - 1].id;
+
+    if (myRequestId !== loadRequestId) return;
+
+    if (error) {
+        showToast('加载投稿失败');
+        isLoadingImages = false;
+        grid.classList.remove('loading');
+        return;
+    }
+    if (data.length < PAGE_SIZE) hasMoreImages = false;
+    if (data.length > 0) lastCursorId = data[data.length - 1].id;
 
     const newImages = data.map(r => ({
         id: 'sub-' + r.id,
@@ -1652,7 +2028,8 @@ async function loadSubmissions(reset=true) {
         user_code: r.user_code || '',
         width: r.width || 0,
         height: r.height || 0,
-        approved: r.approved !== false
+        approved: r.approved !== false,
+        tags: Array.isArray(r.tags) ? r.tags : []
     }));
 
     if (reset) {
@@ -1665,6 +2042,8 @@ async function loadSubmissions(reset=true) {
         isLoadingImages = false;
         appendImageCards(newImages, startIndex);
     }
+
+    grid.classList.remove('loading');
 
     await loadLikeCounts();
     updateStats();
@@ -1742,6 +2121,9 @@ function buildImageCard(img, index, profile, curAuthor, curCode) {
     const hasRatio = !!(img.width && img.height);
     const innerCls = hasRatio ? ' has-ratio' : '';
     const innerStyle = hasRatio ? ` style="aspect-ratio: ${img.width} / ${img.height};"` : '';
+    const tagsHtml = (img.tags && img.tags.length)
+        ? `<div class="image-card-tags">${img.tags.map(t => `<span class="image-card-tag">${escapeHtml(t)}</span>`).join('')}</div>`
+        : '';
 
     const card = document.createElement('div');
     card.className = 'image-card';
@@ -1762,6 +2144,7 @@ function buildImageCard(img, index, profile, curAuthor, curCode) {
                 <span class="badge ${isSub?'badge-submission':'badge-preset'}">${isSub?'投稿':'精选'}</span>
                 ${isSub && !img.approved ? '<span class="badge badge-pending">⏳ 审核中</span>' : ''}
             </div>
+            ${tagsHtml}
             <div class="image-card-actions">${actions}</div>
         </div>`;
     const imgEl = card.querySelector('img');
@@ -1790,13 +2173,23 @@ function renderGallery() {
     grid.innerHTML = '';
     const all = getAllImages();
     if (all.length === 0) {
-        grid.innerHTML = `
-            <div class="gallery-empty">
-                <div class="gallery-empty-icon">📷</div>
-                <div class="gallery-empty-title">还没有照片</div>
-                <div class="gallery-empty-text">成为第一个分享的人吧</div>
-                <button class="gallery-empty-btn" onclick="openSubmitModal()">✨ 去投稿</button>
-            </div>`;
+        if (currentTag) {
+            grid.innerHTML = `
+                <div class="gallery-empty">
+                    <div class="gallery-empty-icon">🏷️</div>
+                    <div class="gallery-empty-title">「${escapeHtml(currentTag)}」下还没有内容</div>
+                    <div class="gallery-empty-text">换个标签看看，或为它添加第一张图</div>
+                    <button class="gallery-empty-btn" onclick="openSubmitModal()">✨ 去投稿</button>
+                </div>`;
+        } else {
+            grid.innerHTML = `
+                <div class="gallery-empty">
+                    <div class="gallery-empty-icon">📷</div>
+                    <div class="gallery-empty-title">还没有照片</div>
+                    <div class="gallery-empty-text">成为第一个分享的人吧</div>
+                    <button class="gallery-empty-btn" onclick="openSubmitModal()">✨ 去投稿</button>
+                </div>`;
+        }
         return;
     }
     const profile = getProfile();
@@ -1862,6 +2255,60 @@ function lazyLoadImage(img) {
         }
     });
 }
+
+// ==================== 标签栏 ====================
+let tagScrollTimer = null;
+
+function bindTagBar(barId) {
+    const bar = document.getElementById(barId);
+    if (!bar) return;
+    bar.addEventListener('click', e => {
+        const chip = e.target.closest('.tag-chip');
+        if (!chip) return;
+        const tag = chip.getAttribute('data-tag') || '';
+        if (tag === currentTag) return;
+        currentTag = tag;
+        document.querySelectorAll('.tag-chip').forEach(c => {
+            if (c.getAttribute('data-tag') === tag) c.classList.add('active');
+            else c.classList.remove('active');
+        });
+
+        if (barId === 'tagBarBottom') {
+            const target = document.getElementById('tagBarTop');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            clearTimeout(tagScrollTimer);
+            tagScrollTimer = setTimeout(() => {
+                loadSubmissions(true);
+            }, 400);
+        } else {
+            loadSubmissions(true);
+        }
+    });
+}
+bindTagBar('tagBarTop');
+bindTagBar('tagBarBottom');
+
+// 标签选择器视觉同步（兼容不支持 :has() 的浏览器）
+document.addEventListener('change', e => {
+    if (e.target.matches('.tag-pick-item input[type="checkbox"]')) {
+        const label = e.target.closest('.tag-pick-item');
+        if (label) {
+            if (e.target.checked) {
+                label.classList.add('checked');
+                label.style.background = 'linear-gradient(135deg, var(--pink), var(--pink-light))';
+                label.style.color = '#fff';
+                label.style.borderColor = 'transparent';
+            } else {
+                label.classList.remove('checked');
+                label.style.background = '';
+                label.style.color = '';
+                label.style.borderColor = '';
+            }
+        }
+    }
+});
 
 // ==================== 图库点击 ====================
 const galleryGrid = document.getElementById('galleryGrid');
@@ -1988,7 +2435,7 @@ async function loadMessages(reset=true) {
 
     const profileNow = getProfile();
     let query = sb.from('messages')
-        .select('id, author, content, show_author, user_code, created_at, approved')
+        .select('id, author, content, show_author, user_code, created_at, approved, tags')
         .order('id', { ascending: false })
         .limit(MSG_PAGE_SIZE);
     if (lastMsgId !== null) query = query.lt('id', lastMsgId);
@@ -2014,18 +2461,23 @@ async function loadMessages(reset=true) {
     const frag = document.createDocumentFragment();
     let idx = track.querySelectorAll('.story-card').length;
     data.forEach(m => {
+        m.tags = Array.isArray(m.tags) ? m.tags : [];
         storiesStore[m.id] = m;
         const isMine = profile.code && m.user_code === profile.code && m.author === profile.author;
         const displayAuthor = m.show_author ? m.author : '匿名';
         const initial = (m.show_author ? (m.author || '?') : '匿').charAt(0).toUpperCase();
         const card = document.createElement('div');
-        card.className = 'story-card';
+        card.className = 'story-card' + (m.approved === false ? ' pending' : '');
         card.dataset.storyId = m.id;
         card.style.animationDelay = Math.min(idx * 60, 600) + 'ms';
         idx++;
+        const tagsHtml = m.tags.length
+            ? `<div class="image-card-tags" style="margin-top:8px;">${m.tags.map(t => `<span class="image-card-tag">${escapeHtml(t)}</span>`).join('')}</div>`
+            : '';
         card.innerHTML = `
             ${(adminMode || isMine) ? `<button class="story-delete" data-del-id="${m.id}" data-own="${isMine ? 1 : 0}" title="${adminMode ? '管理员删除' : '删除'}">✕</button>` : ''}
             <div class="story-content">${escapeHtml(m.content)}</div>
+            ${tagsHtml}
             <div class="story-footer">
                 <div class="story-author">
                     <div class="story-avatar">${escapeHtml(initial)}</div>
@@ -2077,7 +2529,10 @@ function openStoryRead(m) {
     const displayAuthor = m.show_author ? m.author : '匿名';
     const initial = (m.show_author ? (m.author || '?') : '匿').charAt(0).toUpperCase();
     document.getElementById('storyReadAvatar').textContent = initial;
-    document.getElementById('storyReadAuthor').textContent = displayAuthor + (isMine ? ' · 我的' : '');
+    const authorText = displayAuthor + (isMine ? ' · 我的' : '');
+    document.getElementById('storyReadAuthor').innerHTML = m.approved === false
+        ? `${escapeHtml(authorText)} <span class="badge badge-pending" style="margin-left:6px;">⏳ 审核中</span>`
+        : escapeHtml(authorText);
     document.getElementById('storyReadTime').textContent = formatStoryTime(m.created_at) + ' · ' + new Date(m.created_at).toLocaleString('zh-CN');
     document.getElementById('storyReadContent').textContent = m.content;
     document.getElementById('storyReadView').style.display = 'block';
@@ -2094,6 +2549,16 @@ function openStoryWrite() {
     document.getElementById('msgContent').value = '';
     document.getElementById('msgCharCount').textContent = '0';
     document.getElementById('msgAnonymous').checked = false;
+    document.querySelectorAll('#msgTagPicker input').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.tag-pick-item');
+        if (label) {
+            label.classList.remove('checked');
+            label.style.background = '';
+            label.style.color = '';
+            label.style.borderColor = '';
+        }
+    });
     document.getElementById('storyModalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
     setTimeout(() => document.getElementById('msgContent').focus(), 300);
@@ -2112,11 +2577,26 @@ if (messageForm) messageForm.addEventListener('submit', async e => {
     const content = document.getElementById('msgContent').value.trim();
     if(!content) return;
     const anon = document.getElementById('msgAnonymous').checked;
+    const msgTags = [];
+    document.querySelectorAll('#msgTagPicker input:checked').forEach(cb => {
+        msgTags.push(cb.value);
+    });
     const { error } = await sb.from('messages').insert({
-        author: profile.author, content, user_code: profile.code, show_author: !anon
+        author: profile.author, content, user_code: profile.code, show_author: !anon,
+        tags: msgTags
     });
     if(error) return showToast('发布失败');
     showToast(reviewModeOn ? '📤 已提交，等待审核' : '✨ 故事已发布');
+    document.querySelectorAll('#msgTagPicker input').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.tag-pick-item');
+        if (label) {
+            label.classList.remove('checked');
+            label.style.background = '';
+            label.style.color = '';
+            label.style.borderColor = '';
+        }
+    });
     closeStoryModal();
     loadMessages(true);
     updateStats();
@@ -2136,13 +2616,13 @@ document.getElementById('btnNewStory').onclick = openStoryWrite;
 async function downloadSelected() {
     if(!selectedIndices.size) return showToast('请先选择图片');
     showToast('📦 打包中...');
-    const all = getAllImages(); const zip = new JSZip(); const folder = zip.folder('鱼丸的小屋_精选');
+    const all = getAllImages(); const zip = new JSZip(); const folder = zip.folder('鱼丸的时光屋_精选');
     await Promise.all([...selectedIndices].map(i => {
         const img = all[i];
         return img ? fetch(img.fullSrc || img.src).then(r=>r.blob()).then(blob=>folder.file(`${i+1}_${img.title||'image'}.jpg`,blob)).catch(()=>{}) : Promise.resolve();
     }));
     const content = await zip.generateAsync({type:'blob'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(content); a.download = '鱼丸的小屋_精选.zip'; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(content); a.download = '鱼丸的时光屋_精选.zip'; a.click();
     showToast('✅ 下载完成');
     cancelSelectMode();
 }
@@ -2255,6 +2735,7 @@ function openLightbox(startIndex) {
     if (selectMode) return;
     const all = getAllImages();
     if (!all.length) return;
+    if (startIndex < 0 || startIndex >= all.length) return;
     const wrapper = document.getElementById('lightboxWrapper');
     wrapper.innerHTML = '';
     all.forEach((img, i) => {
@@ -2367,6 +2848,16 @@ function openSubmitModal() {
     document.getElementById('filePreview').style.display='none';
     document.getElementById('fileList').innerHTML='';
     document.getElementById('uploadProgress').style.display = 'none';
+    document.querySelectorAll('#submitTagPicker input').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.tag-pick-item');
+        if (label) {
+            label.classList.remove('checked');
+            label.style.background = '';
+            label.style.color = '';
+            label.style.borderColor = '';
+        }
+    });
     document.getElementById('submitModalOverlay').classList.add('active');
     document.body.style.overflow='hidden';
 }
@@ -2391,6 +2882,12 @@ async function uploadFiles(files, profile, btn) {
     fillEl.style.width = '0%';
     textEl.textContent = `0 / ${total}`;
     etaEl.textContent = '';
+
+    const defaultTitle = document.getElementById('inputTitle').value.trim();
+    const submitTags = [];
+    document.querySelectorAll('#submitTagPicker input:checked').forEach(cb => {
+        submitTags.push(cb.value);
+    });
 
     async function uploadOne(f) {
         if(!f.type.match(/^image\/(jpeg|png|webp)$/) || f.size>10*1024*1024) {
@@ -2418,7 +2915,8 @@ async function uploadFiles(files, profile, btn) {
 
             const key = f.name + '_' + f.size;
             const customTitle = document.querySelector(`.custom-title-input[data-file-key="${key}"]`);
-            const finalTitle = customTitle ? customTitle.value.trim() : '';
+            const customVal = customTitle ? customTitle.value.trim() : '';
+            const finalTitle = customVal || defaultTitle;
 
             const { error: dbError } = await sb.from('submissions').insert({
                 title: finalTitle,
@@ -2428,7 +2926,8 @@ async function uploadFiles(files, profile, btn) {
                 user_code: profile.code,
                 content_hash: hash,
                 width: width || null,
-                height: height || null
+                height: height || null,
+                tags: submitTags
             });
             if(dbError) { showToast(`⚠️ "${f.name}" 保存失败`); return false; }
             return true;
@@ -2494,6 +2993,16 @@ if (submitForm) submitForm.addEventListener('submit', async function(e) {
         updateStats();
     }
     document.getElementById('inputFile').value = '';
+    document.querySelectorAll('#submitTagPicker input').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.tag-pick-item');
+        if (label) {
+            label.classList.remove('checked');
+            label.style.background = '';
+            label.style.color = '';
+            label.style.borderColor = '';
+        }
+    });
     btn.disabled = false; btn.textContent = '✨ 提交投稿';
     const retryBtn = document.getElementById('retryFailedBtn');
     retryFiles.length ? (retryBtn.style.display='block', retryBtn.textContent=`重试失败文件 (${retryFiles.length})`) : (retryBtn.style.display='none');
@@ -2768,13 +3277,18 @@ async function loadPending() {
             : (item.content.length > 50 ? item.content.slice(0, 50) + '…' : item.content);
         const kindLabel = item.kind === 'submission' ? '📸' : '💬';
         const timeStr = new Date(item.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const tagsStr = (item.tags && item.tags.length)
+            ? item.tags.map(t => `<span class="image-card-tag" style="margin-right:3px;">${escapeHtml(t)}</span>`).join('')
+            : '';
         row.innerHTML = `
             <div class="admin-user-info">
                 <span class="admin-user-name">${kindLabel} ${escapeHtml(item.author)}</span>
                 <span class="admin-user-code">${escapeHtml(preview)}</span>
+                ${tagsStr ? `<div style="margin-top:4px;">${tagsStr}</div>` : ''}
             </div>
             <div class="admin-user-stats">${timeStr}</div>
             <div class="admin-user-actions">
+                <button class="admin-mini-btn primary" data-edit-kind="${item.kind}" data-edit-id="${item.id}">编辑</button>
                 <button class="admin-mini-btn primary" data-approve-kind="${item.kind}" data-approve-id="${item.id}">通过</button>
                 <button class="admin-mini-btn danger" data-reject-kind="${item.kind}" data-reject-id="${item.id}">删除</button>
             </div>`;
@@ -2782,6 +3296,84 @@ async function loadPending() {
     });
     listEl.innerHTML = '';
     listEl.appendChild(frag);
+}
+
+// ===== 编辑待审核内容 =====
+function openEditPending(kind, id) {
+    sb.rpc('admin_list_pending', { admin_pwd: adminPassword }).then(({ data, error }) => {
+        if (error) return showToast('❌ ' + error.message);
+        if (!data) return;
+        const item = data.find(x => x.kind === kind && Number(x.id) === Number(id));
+        if (!item) return showToast('⚠️ 未找到该内容，可能已被处理');
+        editPendingData = item;
+        document.getElementById('editPendingKind').value = kind;
+        document.getElementById('editPendingId').value = id;
+        if (kind === 'submission') {
+            document.getElementById('editTitleGroup').style.display = 'block';
+            document.getElementById('editPendingTitleInput').value = item.title || '';
+        } else {
+            document.getElementById('editTitleGroup').style.display = 'none';
+        }
+        const tagSet = new Set(item.tags || []);
+        document.querySelectorAll('#editTagPicker input').forEach(cb => {
+            cb.checked = tagSet.has(cb.value);
+            const label = cb.closest('.tag-pick-item');
+            if (label) {
+                if (cb.checked) {
+                    label.classList.add('checked');
+                    label.style.background = 'linear-gradient(135deg, var(--pink), var(--pink-light))';
+                    label.style.color = '#fff';
+                    label.style.borderColor = 'transparent';
+                } else {
+                    label.classList.remove('checked');
+                    label.style.background = '';
+                    label.style.color = '';
+                    label.style.borderColor = '';
+                }
+            }
+        });
+        document.getElementById('editPendingOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+}
+
+function closeEditPending() {
+    document.getElementById('editPendingOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+async function saveEditPending(alsoApprove) {
+    if (!editPendingData) return;
+    const kind = document.getElementById('editPendingKind').value;
+    const id = parseInt(document.getElementById('editPendingId').value, 10);
+    const tags = [];
+    document.querySelectorAll('#editTagPicker input:checked').forEach(cb => tags.push(cb.value));
+    const title = document.getElementById('editPendingTitleInput').value.trim();
+
+    let error;
+    if (kind === 'submission') {
+        ({ error } = await sb.rpc('admin_update_submission', {
+            p_id: id, p_title: title, p_tags: tags, admin_pwd: adminPassword
+        }));
+    } else {
+        ({ error } = await sb.rpc('admin_update_message', {
+            p_id: id, p_tags: tags, admin_pwd: adminPassword
+        }));
+    }
+    if (error) return showToast('❌ ' + error.message);
+
+    if (alsoApprove) {
+        const { error: e2 } = await sb.rpc('admin_approve', { p_kind: kind, p_id: id, admin_pwd: adminPassword });
+        if (e2) return showToast('❌ ' + e2.message);
+        showToast('✅ 已保存并通过');
+    } else {
+        showToast('✅ 已保存');
+    }
+
+    closeEditPending();
+    loadPending();
+    loadSubmissions(true);
+    loadMessages(true);
 }
 
 // ==================== 个人身份 ====================
@@ -2830,7 +3422,6 @@ async function syncProfileFromServer() {
     }
 }
 
-// 切回页面时同步一次
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) return;
     syncProfileFromServer();
@@ -2841,7 +3432,6 @@ document.addEventListener('visibilitychange', () => {
     loadMessages(true);
 });
 
-// 同浏览器多标签广播
 try {
     profileChannel = new BroadcastChannel('fishball_profile');
     profileChannel.onmessage = (e) => {
@@ -3048,6 +3638,18 @@ document.getElementById('btnCancelSelect').onclick = cancelSelectMode;
 document.getElementById('btnDownloadSelected').onclick = downloadSelected;
 document.getElementById('btnDeleteSelected').onclick = deleteSelected;
 
+// ===== 页脚按钮绑定 =====
+const btnFooterSubmit = document.getElementById('btnFooterSubmit');
+if (btnFooterSubmit) btnFooterSubmit.onclick = openSubmitModal;
+const btnFooterMessages = document.getElementById('btnFooterMessages');
+if (btnFooterMessages) btnFooterMessages.onclick = scrollToStories;
+const btnFooterGallery = document.getElementById('btnFooterGallery');
+if (btnFooterGallery) btnFooterGallery.onclick = () => {
+    const target = document.getElementById('tagBarTop');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 document.getElementById('btnAdminPanel').addEventListener('click', openAdminPanel);
 document.getElementById('btnAdminPanelClose').addEventListener('click', closeAdminPanel);
 document.getElementById('btnLoadUsers').addEventListener('click', loadAdminUsers);
@@ -3056,7 +3658,10 @@ document.getElementById('btnDeleteOrphans').addEventListener('click', deleteOrph
 document.getElementById('btnToggleReview').addEventListener('click', toggleReviewMode);
 document.getElementById('btnLoadPending').addEventListener('click', loadPending);
 
-// 用户管理操作委托
+document.getElementById('btnEditPendingClose').addEventListener('click', closeEditPending);
+document.getElementById('btnEditPendingSave').addEventListener('click', () => saveEditPending(false));
+document.getElementById('btnEditPendingSaveApprove').addEventListener('click', () => saveEditPending(true));
+
 document.getElementById('adminUserList').addEventListener('click', async e => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
@@ -3101,8 +3706,14 @@ document.getElementById('adminUserList').addEventListener('click', async e => {
     }
 });
 
-// 审核操作委托
 document.getElementById('adminPendingList').addEventListener('click', async e => {
+    const editBtn = e.target.closest('[data-edit-kind]');
+    if (editBtn) {
+        const kind = editBtn.getAttribute('data-edit-kind');
+        const id = parseInt(editBtn.getAttribute('data-edit-id'), 10);
+        openEditPending(kind, id);
+        return;
+    }
     const approveBtn = e.target.closest('[data-approve-kind]');
     if (approveBtn) {
         const kind = approveBtn.getAttribute('data-approve-kind');
@@ -3122,9 +3733,8 @@ document.getElementById('adminPendingList').addEventListener('click', async e =>
         const res = await showConfirm('确认删除此内容吗？', { title: '拒绝并删除' });
         if (!res.confirmed) return;
         if (kind === 'submission') {
-            const numericId = id;
-            const { data: row } = await sb.from('submissions').select('image_url,thumbnail_url').eq('id', numericId).single();
-            const { error } = await sb.rpc('admin_delete_submission', { submission_id: numericId, admin_pwd: adminPassword });
+            const { data: row } = await sb.from('submissions').select('image_url,thumbnail_url').eq('id', id).single();
+            const { error } = await sb.rpc('admin_delete_submission', { submission_id: id, admin_pwd: adminPassword });
             if (error) return showToast('❌ ' + error.message);
             if (row) {
                 if (row.image_url) await deleteStorageFile(row.image_url);
@@ -3136,6 +3746,7 @@ document.getElementById('adminPendingList').addEventListener('click', async e =>
         }
         showToast('🗑️ 已删除');
         loadPending();
+        return;
     }
 });
 
@@ -3184,7 +3795,7 @@ if (fileArea && fileInput) {
             const f = files[i];
             html += `<div style="display:flex; gap:8px; align-items:center; margin-top:6px; font-size:0.78rem;">
                 <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(f.name)}</span>
-                <input class="custom-title-input" data-file-key="${f.name}_${f.size}" placeholder="留空则无标题" style="flex:1; padding:6px 10px; font-size:0.75rem; border:1px solid rgba(0,0,0,0.08); border-radius:6px; background:var(--cream); outline:none; color:var(--text-primary);">
+                <input class="custom-title-input" data-file-key="${f.name}_${f.size}" placeholder="留空用默认标题" style="flex:1; padding:6px 10px; font-size:0.75rem; border:1px solid rgba(0,0,0,0.08); border-radius:6px; background:var(--cream); outline:none; color:var(--text-primary);">
             </div>`;
         }
         document.getElementById('fileList').innerHTML = html;
@@ -3320,7 +3931,7 @@ document.getElementById('btnEnter').onclick = () => {
 })();
 playHeroAnimation();
 updateStats();
-console.log('鱼丸的小屋 · 完整版 已启动');
+console.log('鱼丸的时光屋 · 已启动');
 </script>
 </body>
 </html>
